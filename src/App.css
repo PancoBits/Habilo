@@ -1,0 +1,9 @@
+.App {
+    display: flex;
+    width: 100vmax;
+    place-content: center;
+}
+
+header {
+    background-color: #5DC1B9;
+}
