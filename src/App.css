@@ -1,9 +1,79 @@
 .App {
     display: flex;
-    width: 100vmax;
-    place-content: center;
+    width: 100vw;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    align-items: flex-start;
+    background-color: white;
 }
 
-header {
-    background-color: #5DC1B9;
+#App-header {
+    display: flex;
+    width: 100vw;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    align-items: center;
+    box-sizing: border-box;
+    overflow: auto;
+}
+
+img{
+    width: 100%;
+}
+
+#App-header div{
+    width: 10vw;
+    min-width: 50px;
+    max-width: 70px;
+}
+
+#App-header h1 {
+    font-size: clamp(1em, 5vw, 2em);
+}
+
+#pet {
+    width: 30vw;
+    min-width: 100px;
+    max-width: 250px;
+}
+
+#App-tracker {
+    display: flex;
+    width: 100vw;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    align-items: flex-start;
+    overflow: auto;
+    box-sizing: border-box;
+}
+
+#at-box{
+    background-color: white;
+    border-radius: 1vw;
+    padding: clamp(5px, 1.5vw, 10px);
+    display: flex;
+    flex-direction:column;
+    width: 30vw;
+    height: fit-content;
+    box-sizing: border-box;
+    gap: 0.5rem;
+}
+
+.Task{
+    background-color: #c7c7c7;
+    border-radius: 1vw;
+    padding: clamp(5px, 1.5vw, 10px);
+    box-sizing: border-box;
+}
+
+.at-button{
+    font: inherit;
+    border: none;
+    border-radius: 1vw;
+    cursor: grab;
+    background-color: #ff5e5e;
+}
+
+.at-button:hover{
+    background-color: #ff7e7e;
 }
