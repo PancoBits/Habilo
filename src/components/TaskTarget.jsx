@@ -1,10 +1,26 @@
+import { useState } from "react"
+
 /* eslint-disable react/prop-types */
-const Task = ({name,priority,tags,stats,descripcion,due,isFinished}) => {
+const Task = ({card,modify}) => {
+    const [isChecked, setIsChecked] = useState(card.isFinished)
+    const actIsFinished = (e) => {
+        setIsChecked(e.target.checked)
+        card.finished = e.target.checked;
+    }
     return(
         <div className="Task">
-            <h1 style={{margin: "initial"}}>{name}</h1>
-            <p style={{margin: "initial"}}>{descripcion}</p>
-            <h4 style={{margin: "initial"}}>{due.getDate()}/{due.getMonth() + 1}/{due.getFullYear()}</h4>
+            <article onClick={()=>modify(card)}>
+            <h1 style={{margin: "initial"}}>{card.name}</h1>
+            <p style={{margin: "initial"}}>{card.description}</p>
+            <p style={{margin: "initial"}}>{card.priority}</p>
+            <p style={{margin: "initial"}}>{card.tags}</p>
+            <p style={{margin: "initial"}}>{card.stats}</p>
+            <p style={{margin: "initial"}}>{card.isFinished}</p>
+            <h4 style={{margin: "initial"}}>{card.due}</h4>
+            </article>
+            <div className="task-check">
+                <input checked={isChecked} type="checkbox" onChange={actIsFinished}></input>
+            </div>
         </div>
     )
 }
