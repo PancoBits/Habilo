@@ -31,7 +31,7 @@ export function App(){
     const [isModified, setIsModified] = useState(false)
     const [actualCard, setActualCard] = useState(new Card())
     const [habits, setHabits] = useState([new Card(
-        1,
+        0,
         "Leer un libro al mes",
         "Final del año con 12 libros leídos",
         null,
@@ -43,7 +43,7 @@ export function App(){
     )])
 
     const [tasks, setTasks] = useState([new Card(
-        1,
+        0,
         "Estudiar robótica",
         "Para el proyecto final",
         `${new Date().getDate()}/${new Date().getMonth() + 1}/${new Date().getFullYear()}`,
@@ -53,7 +53,7 @@ export function App(){
         true,
         "task"
     ),new Card(
-        2,
+        1,
         "Prepararme para entrevista",
         "Por fin se va a conseguir trabajo",
         `${new Date().getDate()}/${new Date().getMonth() + 1}/${new Date().getFullYear()}`,
@@ -94,40 +94,48 @@ export function App(){
     };
 
     const closeModal = (event) => {
-        if(typeof(event) != "undefined"){
-            event.preventDefault();
-            let id,date,type;
-
-            if(isTask){
-                id = tasks.length + 1;
-                date = event.target.date.value;
-                type = "task";
-            }else{
-                id = habits.length + 1
-                date = null;
-                type = "habit";
-            }
-
-            const newCard = new Card(
-                isModified ? actualCard.id : id,
-                event.target.name.value,
-                event.target.description.value,
-                date,
-                event.target.priority.value,
-                event.target.tags.value.trim().split(",").map(e => e.trim()),
-                [].filter.call(event.target.stat,e => e.checked).map(element => element.value),
-                isModified ? actualCard.isFinished : false,
-                type
-            )
-
-            if(isModified){
-                isTask ? setTasks(tasks.map(task => task.id === actualCard.id ? newCard: task))
-                       : setHabits(habits.map(habit => habit.id === actualCard.id ? newCard: habit))
-            }
+        if(typeof(event) !== "undefined"){
             
-            !isModified && (isTask ? setTasks(tasks.concat(newCard)) : setHabits(habits.concat(newCard)))
-        }else{
-            alert('Pues no se guardará nada xd')
+            if(event.type === "submit"){
+                event.preventDefault();
+                let id=0,date,type;
+
+                if(isTask){
+                    tasks.forEach(task => 
+                    task.id>=id && (id=task.id+1)
+                    )
+                    date = event.target.date.value;
+                    type = "task";
+                }else{
+                    habits.forEach(habit => 
+                        habit.id>=id && (id=habit.id+1)
+                    )
+                    date = null;
+                    type = "habit";
+                }
+
+                const newCard = new Card(
+                    isModified ? actualCard.id : id,
+                    event.target.name.value,
+                    event.target.description.value,
+                    date,
+                    event.target.priority.value,
+                    event.target.tags.value.trim().split(",").map(e => e.trim()),
+                    [].filter.call(event.target.stat,e => e.checked).map(element => element.value),
+                    isModified ? actualCard.isFinished : false,
+                    type
+                )
+
+                if(isModified){
+                    isTask ? setTasks(tasks.map(task => task.id == actualCard.id ? newCard : task))
+                        : setHabits(habits.map(habit => habit.id == actualCard.id ? newCard : habit))
+                }
+                
+                !isModified && (isTask ? setTasks(tasks.concat(newCard)) : setHabits(habits.concat(newCard)))
+            }else{
+                isTask ? setTasks(tasks.filter((_,id) => id !== tasks.indexOf(actualCard)))
+                    : setHabits(habits.filter((_,id) => id !== habits.indexOf(actualCard)))
+            }
         }
         setDialog(!dialogOpen)
         setActualCard(new Card())
@@ -147,7 +155,7 @@ export function App(){
 
     return(
         <>
-            <DialogAdd ref={dialogModal} dialogOpen={dialogOpen} closeModal={closeModal} isTask={isTask} actualCard={actualCard} stats={stats}/>
+            <DialogAdd ref={dialogModal} dialogOpen={dialogOpen} closeModal={closeModal} isTask={isTask} isModified={isModified} actualCard={actualCard} stats={stats}/>
             <header id="App-header">
                 <h1>Administrador de Tareas</h1>
                 <div>

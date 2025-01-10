@@ -2,7 +2,7 @@ import { useState,forwardRef, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 /* eslint-disable react/prop-types */
-const DialogAdd = forwardRef (function DialogAdd({closeModal,dialogOpen,isTask,actualCard,stats},ref) {
+const DialogAdd = forwardRef (function DialogAdd({closeModal,dialogOpen,isTask,isModified,actualCard,stats},ref) {
     const [startDate, setStartDate] = useState(new Date());
     const [sendButton, setSendButton] = useState([false,false]);
     const [checkboxes,setCheckboxes] = useState(stats)
@@ -44,11 +44,25 @@ const DialogAdd = forwardRef (function DialogAdd({closeModal,dialogOpen,isTask,a
         else document.querySelector("#send").disabled = true
     }
 
+    const confirmation = () => {
+        let message = "Estás seguro de eliminar "
+        isTask ? message=message+`la tarea: ${actualCard.name}` 
+               : message=message+`el hábito: ${actualCard.name}` 
+        return confirm(message)
+    }
+
+    const noExit = (event) =>{
+        if(event.key === "Escape"){
+            event.preventDefault();
+            (confirm("Estás seguro de cerrar? se perderá cualquier progreso")) && sendForm()
+        }
+    }
+
     return( 
-            <dialog ref={ref} className="add-item">
+            <dialog ref={ref} className="add-item" onKeyDown={noExit}>
                 <form key={dialogOpen} onSubmit={sendForm} className="info-item">
                     <h1>Nombre</h1>
-                    <textarea id="name" placeholder="Ej: Hacer ejercicio" onChange={isFilled} defaultValue={actualCard.name}></textarea>
+                    <textarea id="name" autoFocus={true}  placeholder="Ej: Hacer ejercicio" onChange={isFilled} defaultValue={actualCard.name}></textarea>
                     <h1>Descrición</h1>
                     <textarea id="description" defaultValue={actualCard.description}></textarea>
                     {isTask && <h1>Finaliza</h1>}
@@ -68,8 +82,9 @@ const DialogAdd = forwardRef (function DialogAdd({closeModal,dialogOpen,isTask,a
                     <div>
                         {stats.map(stat => <input key={stat.id} type="checkbox" id={stat.id} name="stat" value={stat.name} checked={checkboxes[stat.id].check} onChange={isFilled}/>) }
                     </div>
-                    <button type="button" onClick={() => sendForm()}>Cancelar</button>
+                    <button type="button" onClick={() => confirm("Estás seguro de cerrar? se perderá cualquier progreso") && sendForm()}>Cancelar</button>
                     <button type="submit" id="send" disabled>Guardar</button>
+                    {isModified && <button type="button" onClick={event => confirmation() && sendForm(event)}>Eliminar</button>}
                 </form>
             </dialog>
     )
