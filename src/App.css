@@ -37,6 +37,41 @@ img{
     max-width: 250px;
 }
 
+#status h3{
+    margin: 1vh;
+}
+
+.status-bar {
+    width: 100%;
+    height: 30px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    border: 2px solid #c7c7c7;
+    box-sizing: border-box;
+}
+
+#level {
+    width: 10%;
+    height: 100%;
+    background-color: #fffd8f;
+    border-radius: 10px;
+    box-sizing: border-box;
+}
+#life {
+    width: 100%;
+    height: 100%;
+    background-color: #ff0037;
+    border-radius: 10px;
+    box-sizing: border-box;
+}
+#gelatine {
+    width: 10%;
+    height: 100%;
+    background-color: aquamarine;
+    border-radius: 10px;
+    box-sizing: border-box;
+}
+
 #App-tracker {
     display: flex;
     width: 100%;
@@ -55,7 +90,6 @@ img{
     width: 30vw;
     height: fit-content;
     box-sizing: border-box;
-    gap: 0.5rem;
 }
 
 .Task{
@@ -64,6 +98,11 @@ img{
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+}
+
+.Task.dragging{
+    opacity: 0.7;
+    border: 1px dashed #333;
 }
 
 .Task article{
@@ -140,4 +179,22 @@ img{
 
 .info-item #name{
     resize: none;
+}
+
+.da-show{   
+    text-align: center;
+    line-height: 20vh;
+    border-radius: 1vw;
+    border: 2px dashed aquamarine;
+    padding: clamp(5px, 1.5vw, 10px);
+    margin: clamp(5px, 1.5vw, 10px);
+    height: 20vh;
+    opacity: 1;
+    transition: all 0.5s ease-in-out;
+}
+
+.da-notshow{
+    transition: all 0.5s ease-in-out;
+    font-size: 0.5rem;
+    opacity: 0;
 }

@@ -2,7 +2,8 @@ import "./App.css"
 import { Card } from "./Card";
 import Task from "./components/TaskTarget"
 import DialogAdd from "./components/DialogAdd";
-import { useState, useRef } from "react";
+import DropArea from "./components/dropArea"
+import {Fragment,useState, useRef } from "react";
 
 /* eslint-disable react/prop-types */
 
@@ -12,11 +13,14 @@ const ButtonAdd = ({content,activateModal}) => {
     )
 };
 
-const ShowCards = ({data,modify}) => {
+const ShowCards = ({data,modify,activeCard,setActiveCard,onDrop}) => {
     const display = () => {
         return data.map(card => 
          (
-            <Task key={card.id} card={card} modify={modify}/>
+            <Fragment  key={card.id}>
+                <Task card={card} modify={modify} setActiveCard={setActiveCard}/>
+                <DropArea position={card.position+1} type={card.type} activeCard={activeCard} onDrop={() => onDrop(card.position+1,card.type)}></DropArea>
+            </Fragment>
         )
         )
     };
@@ -27,9 +31,12 @@ export function App(){
 
     const dialogModal = useRef();
     const [dialogOpen, setDialog] = useState(false)
+    const [startDate, setStartDate] = useState(new Date())
     const [isTask, setIsTask] = useState(false)
     const [isModified, setIsModified] = useState(false)
     const [actualCard, setActualCard] = useState(new Card())
+    const [activeCard, setActiveCard] = useState(null)
+    
     const [habits, setHabits] = useState([new Card(
         0,
         "Leer un libro al mes",
@@ -39,29 +46,32 @@ export function App(){
         ["personal","habilidad"],
         ["Inteligencia", "Bienestar"],
         true,
-        "habit"
+        "habit",
+        0
     )])
 
     const [tasks, setTasks] = useState([new Card(
         0,
         "Estudiar robótica",
         "Para el proyecto final",
-        `${new Date().getDate()}/${new Date().getMonth() + 1}/${new Date().getFullYear()}`,
+        new Date(),
         "Media",
         ["estudio"],
         ["Inteligencia"],
         true,
-        "task"
+        "task",
+        0
     ),new Card(
         1,
         "Prepararme para entrevista",
         "Por fin se va a conseguir trabajo",
-        `${new Date().getDate()}/${new Date().getMonth() + 1}/${new Date().getFullYear()}`,
+        new Date(),
         "Alta",
         ["personal"],
         ["Inteligencia","Social"],
         false,
-        "task"
+        "task",
+        1
     )])
 
     const stats = [{
@@ -86,9 +96,7 @@ export function App(){
     const habitMessage = "Nuevo hábito"
 
     const activateModal = (content) => {
-        if(content === habitMessage) setIsTask(false)
-        else setIsTask(true)
-        
+        content === habitMessage ? setIsTask(false) : setIsTask(true)
         setDialog(!dialogOpen);
         dialogModal.current.showModal();
     };
@@ -98,20 +106,22 @@ export function App(){
             
             if(event.type === "submit"){
                 event.preventDefault();
-                let id=0,date,type;
+                let id=0,date,type,position;
 
                 if(isTask){
                     tasks.forEach(task => 
-                    task.id>=id && (id=task.id+1)
+                        task.id>=id && (id=task.id+1)
                     )
-                    date = event.target.date.value;
+                    date = startDate;
                     type = "task";
+                    position = tasks.length;
                 }else{
                     habits.forEach(habit => 
                         habit.id>=id && (id=habit.id+1)
                     )
                     date = null;
                     type = "habit";
+                    position = habits.length;
                 }
 
                 const newCard = new Card(
@@ -123,18 +133,21 @@ export function App(){
                     event.target.tags.value.trim().split(",").map(e => e.trim()),
                     [].filter.call(event.target.stat,e => e.checked).map(element => element.value),
                     isModified ? actualCard.isFinished : false,
-                    type
+                    type,
+                    position
                 )
 
                 if(isModified){
                     isTask ? setTasks(tasks.map(task => task.id == actualCard.id ? newCard : task))
-                        : setHabits(habits.map(habit => habit.id == actualCard.id ? newCard : habit))
+                            : setHabits(habits.map(habit => habit.id == actualCard.id ? newCard : habit))
                 }
                 
                 !isModified && (isTask ? setTasks(tasks.concat(newCard)) : setHabits(habits.concat(newCard)))
             }else{
-                isTask ? setTasks(tasks.filter((_,id) => id !== tasks.indexOf(actualCard)))
-                    : setHabits(habits.filter((_,id) => id !== habits.indexOf(actualCard)))
+                isTask ? setTasks(tasks.filter((_,id) => id !== tasks.indexOf(actualCard))
+                                        .map((task,i) => {task.setposition = i; return task}))
+                        : setHabits(habits.filter((_,id) => id !== habits.indexOf(actualCard))
+                                        .map((habit,i) => {habit.setposition = i; return habit}))
             }
         }
         setDialog(!dialogOpen)
@@ -144,18 +157,45 @@ export function App(){
     };
 
     const modifyCard = (card) => {
-        if(card.type === "task") setIsTask(true)
-        else setIsTask(false)
-
+        card.type === "task" ? setIsTask(true) : setIsTask(false)
         setActualCard(card);
         setIsModified(!isModified)
         setDialog(!dialogOpen);
         dialogModal.current.showModal();
     }
 
+    const onDrop = (position,cardType) => {
+        if(position !== activeCard.position && position !== activeCard.position+1){
+            let cardsChange = (cardType === "task") ? [...tasks] : [...habits]
+
+            cardsChange.splice(position,0,activeCard)
+            cardsChange.splice(cardsChange.findIndex((card,i) =>
+            card.id === activeCard.id ? (i!=position ? true : false) : false),1)
+            
+            cardType === "task" ? setTasks(cardsChange.map((card,i) => {
+                                    card.setposition = i
+                                    return card
+                                }))
+                                : setHabits(cardsChange.map((card,i) => {
+                                    card.setposition = i
+                                    return card
+                                }))
+        }
+    }
+
     return(
         <>
-            <DialogAdd ref={dialogModal} dialogOpen={dialogOpen} closeModal={closeModal} isTask={isTask} isModified={isModified} actualCard={actualCard} stats={stats}/>
+            <DialogAdd
+                ref={dialogModal}
+                dialogOpen={dialogOpen}
+                closeModal={closeModal}
+                startDate={startDate}
+                setStartDate={setStartDate}
+                isTask={isTask}
+                isModified={isModified}
+                actualCard={actualCard}
+                stats={stats}
+            />
             <header id="App-header">
                 <h1>Administrador de Tareas</h1>
                 <div>
@@ -171,10 +211,19 @@ export function App(){
             
             <main>
                 <section className="App">
-                    <article>
+                    <article id="status">
                         <h3>Nivel de Mascota</h3>
+                        <div className="status-bar">
+                            <div id="level"></div>
+                        </div>
                         <h3>Vida de Mascota</h3>
+                        <div className="status-bar">
+                            <div id="life"></div>
+                        </div>
                         <h3>Gelatina</h3>
+                        <div className="status-bar">
+                            <div id="gelatine"></div>
+                        </div>
                     </article>
 
                     <article>
@@ -197,14 +246,16 @@ export function App(){
                         <h1>Por Hacer</h1>
                         <section id="at-box">
                             <ButtonAdd content={taskMessage} activateModal={activateModal}/>
-                            <ShowCards data={tasks} modify={modifyCard}/>
+                            <DropArea position={0} type={"task"} activeCard={activeCard} onDrop={() => onDrop(0,"task")}></DropArea>
+                            <ShowCards activeCard={activeCard} data={tasks} modify={modifyCard} setActiveCard={setActiveCard} onDrop={onDrop}/>
                         </section>
                     </article>
                     <article>
                         <h1>Hábitos</h1>
                         <section id="at-box">
                         <ButtonAdd content={habitMessage} activateModal={activateModal}/>
-                        <ShowCards data={habits} modify={modifyCard}/>
+                        <DropArea position={0} type={"habit"} activeCard={activeCard} onDrop={() => onDrop(0,"habit")}></DropArea>
+                        <ShowCards activeCard={activeCard} data={habits} modify={modifyCard} setActiveCard={setActiveCard} onDrop={onDrop}/>
                         </section>
                     </article>
                     <article>

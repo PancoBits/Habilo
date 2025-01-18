@@ -1,15 +1,17 @@
 import { useState,forwardRef, useEffect } from "react";
-import DatePicker from "react-datepicker";
+import DatePicker, {registerLocale} from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import {es}from 'date-fns/locale';
+registerLocale("es",es)
+
 /* eslint-disable react/prop-types */
-const DialogAdd = forwardRef (function DialogAdd({closeModal,dialogOpen,isTask,isModified,actualCard,stats},ref) {
-    const [startDate, setStartDate] = useState(new Date());
+const DialogAdd = forwardRef (function DialogAdd({closeModal,dialogOpen,startDate,setStartDate,isTask,isModified,actualCard,stats},ref) {
     const [sendButton, setSendButton] = useState([false,false]);
     const [checkboxes,setCheckboxes] = useState(stats)
     
     useEffect(() => {
         if(actualCard.stats !== undefined){
-            setStartDate(new Date(actualCard.due))
+            setStartDate(actualCard.due)
             actualCard.stats.forEach(cardStat => {
                 setCheckboxes(checks => checks.map(stat => 
                     stat.name === cardStat ? {...stat,check:!stat.check} : stat
@@ -62,11 +64,21 @@ const DialogAdd = forwardRef (function DialogAdd({closeModal,dialogOpen,isTask,i
             <dialog ref={ref} className="add-item" onKeyDown={noExit}>
                 <form key={dialogOpen} onSubmit={sendForm} className="info-item">
                     <h1>Nombre</h1>
-                    <textarea id="name" autoFocus={true}  placeholder="Ej: Hacer ejercicio" onChange={isFilled} defaultValue={actualCard.name}></textarea>
+                    <textarea id="name" autoComplete="on" autoFocus placeholder="Ej: Hacer ejercicio" onChange={isFilled} defaultValue={actualCard.name}></textarea>
                     <h1>Descrición</h1>
                     <textarea id="description" defaultValue={actualCard.description}></textarea>
                     {isTask && <h1>Finaliza</h1>}
-                    {isTask && <DatePicker showIcon toggleCalendarOnIconClick selected={startDate} onChange={(date) => setStartDate(date)} id="date"/>}
+                    {isTask && <DatePicker
+                        id="date"
+                        showIcon
+                        toggleCalendarOnIconClick
+                        isClearable
+                        closeOnScroll={true}
+                        selected={startDate}
+                        onChange={(date) => setStartDate(date)}
+                        locale="es"
+                        dateFormat="dd/MM/yyyy"
+                        placeholderText="Sin fecha de finalización"/>}
                     <h1>Prioridad</h1>
 
                     <select name="priority" defaultValue={actualCard.priority}>
