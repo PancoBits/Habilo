@@ -4,7 +4,6 @@ import "react-datepicker/dist/react-datepicker.css";
 import {es}from 'date-fns/locale';
 registerLocale("es",es)
 
-/* eslint-disable react/prop-types */
 const DialogAdd = forwardRef (function DialogAdd({closeModal,dialogOpen,startDate,setStartDate,isTask,isModified,actualCard,stats},ref) {
     const [sendButton, setSendButton] = useState([false,false]);
     const [checkboxes,setCheckboxes] = useState(stats)

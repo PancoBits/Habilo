@@ -3,9 +3,8 @@ import { Card } from "./Card";
 import Task from "./components/TaskTarget"
 import DialogAdd from "./components/DialogAdd";
 import DropArea from "./components/dropArea"
-import {Fragment,useState, useRef } from "react";
-
-/* eslint-disable react/prop-types */
+import ContextMenu from "./components/ContextMenu";
+import {Fragment,useState, useRef, useEffect, useCallback } from "react";
 
 const ButtonAdd = ({content,activateModal}) => {
     return(
@@ -13,12 +12,12 @@ const ButtonAdd = ({content,activateModal}) => {
     )
 };
 
-const ShowCards = ({data,modify,activeCard,setActiveCard,onDrop}) => {
+const ShowCards = ({data,modify,checkCard,activeCard,setActiveCard,onDrop,openContextMenu}) => {
     const display = () => {
         return data.map(card => 
          (
             <Fragment  key={card.id}>
-                <Task card={card} modify={modify} setActiveCard={setActiveCard}/>
+                <Task card={card} modify={modify} checkCard={checkCard} setActiveCard={setActiveCard} openContextMenu={openContextMenu}/>
                 <DropArea position={card.position+1} type={card.type} activeCard={activeCard} onDrop={() => onDrop(card.position+1,card.type)}></DropArea>
             </Fragment>
         )
@@ -30,13 +29,19 @@ const ShowCards = ({data,modify,activeCard,setActiveCard,onDrop}) => {
 export function App(){
 
     const dialogModal = useRef();
+    const contextMenuRef = useRef();
     const [dialogOpen, setDialog] = useState(false)
     const [startDate, setStartDate] = useState(new Date())
     const [isTask, setIsTask] = useState(false)
     const [isModified, setIsModified] = useState(false)
     const [actualCard, setActualCard] = useState(new Card())
     const [activeCard, setActiveCard] = useState(null)
-    
+    const [contextMenu,setContextMenu] = useState({
+        open: false,
+        x: 0,
+        y: 0
+    })
+
     const [habits, setHabits] = useState([new Card(
         0,
         "Leer un libro al mes",
@@ -47,7 +52,8 @@ export function App(){
         ["Inteligencia", "Bienestar"],
         true,
         "habit",
-        0
+        0,
+        "aquamarine"
     )])
 
     const [tasks, setTasks] = useState([new Card(
@@ -60,7 +66,8 @@ export function App(){
         ["Inteligencia"],
         true,
         "task",
-        0
+        0,
+        "red"
     ),new Card(
         1,
         "Prepararme para entrevista",
@@ -71,7 +78,8 @@ export function App(){
         ["Inteligencia","Social"],
         false,
         "task",
-        1
+        1,
+        "black"
     )])
 
     const stats = [{
@@ -92,8 +100,34 @@ export function App(){
         check: false
     }]
 
+    const colors = [
+        { id: 0, color: "#000000" },
+        { id: 1, color: "#FF0000" },
+        { id: 2, color: "#000080" },
+        { id: 3, color: "#800080" },
+        { id: 4, color: "#FF8C00" },
+        { id: 5, color: "#228B22" },
+        { id: 6, color: "#8B4513" },
+        { id: 7, color: "#7fffd4" }
+    ]
+    
     const taskMessage = "Nuevo por hacer"
     const habitMessage = "Nuevo hábito"
+
+    useEffect(()=>{
+        document.addEventListener("click",closeContextMenu)
+        document.addEventListener("scroll",closeContextMenu)
+        document.addEventListener("keydown",closeContextMenu)
+        document.addEventListener("visibilitychange",closeContextMenu)
+        document.addEventListener("dragstart",closeContextMenu)
+        return () => {
+            document.removeEventListener("click",closeContextMenu)
+            document.removeEventListener("scroll",closeContextMenu)
+            document.removeEventListener("keydown",closeContextMenu)
+            document.removeEventListener("visibilitychange",closeContextMenu)
+            document.removeEventListener("dragstart",closeContextMenu)
+        }
+    },[contextMenu])
 
     const activateModal = (content) => {
         content === habitMessage ? setIsTask(false) : setIsTask(true)
@@ -145,9 +179,9 @@ export function App(){
                 !isModified && (isTask ? setTasks(tasks.concat(newCard)) : setHabits(habits.concat(newCard)))
             }else{
                 isTask ? setTasks(tasks.filter((_,id) => id !== tasks.indexOf(actualCard))
-                                        .map((task,i) => {task.setposition = i; return task}))
+                                        .map((task,i) => task.cloneWithChanges({position:i})))
                         : setHabits(habits.filter((_,id) => id !== habits.indexOf(actualCard))
-                                        .map((habit,i) => {habit.setposition = i; return habit}))
+                                        .map((habit,i) => habit.cloneWithChanges({position:i})))
             }
         }
         setDialog(!dialogOpen)
@@ -164,6 +198,26 @@ export function App(){
         dialogModal.current.showModal();
     }
 
+    const checkCard = (card,isCheck) => {
+        if(card.type === "task"){
+            const cardIndex = tasks.indexOf(card)
+            setTasks(tasks.map((task,i) => {
+                if(i === cardIndex){
+                    return task.cloneWithChanges({isFinished: isCheck})
+                }
+                return task
+            }))
+        }else {
+            const cardIndex = habits.indexOf(card)
+            setHabits(habits.map((habit,i) => {
+                if(i === cardIndex){
+                    return habit.cloneWithChanges({isFinished: isCheck})
+                }
+                return habit
+            }))
+        }
+    } 
+
     const onDrop = (position,cardType) => {
         if(position !== activeCard.position && position !== activeCard.position+1){
             let cardsChange = (cardType === "task") ? [...tasks] : [...habits]
@@ -172,16 +226,46 @@ export function App(){
             cardsChange.splice(cardsChange.findIndex((card,i) =>
             card.id === activeCard.id ? (i!=position ? true : false) : false),1)
             
-            cardType === "task" ? setTasks(cardsChange.map((card,i) => {
-                                    card.setposition = i
-                                    return card
-                                }))
-                                : setHabits(cardsChange.map((card,i) => {
-                                    card.setposition = i
-                                    return card
-                                }))
+            cardType === "task" ? setTasks(cardsChange.map((card,i) => card.cloneWithChanges({position:i})))
+                                : setHabits(cardsChange.map((card,i) => card.cloneWithChanges({position:i})))
         }
     }
+
+    const openContextMenu = (event,card) => {
+        event.preventDefault();
+        let x,y = event.pageY;
+        (event.pageX < window?.innerWidth / 2) ?
+        x = event.pageX :
+        x = event.pageX - contextMenuRef.current.getBoundingClientRect().width;
+        setContextMenu({open:true,x:x,y:y})
+        setActiveCard(card)
+        contextMenuRef.current.focus()
+    }
+
+    const closeContextMenu = useCallback((event) => {
+        if(event._reactName === "onClick" && activeCard){
+            let activeCardIndex;
+            if(activeCard.type === "task"){
+                activeCardIndex = tasks.indexOf(activeCard)
+                setTasks(tasks.map((task,i) => {
+                    if(i === activeCardIndex){
+                        return task.cloneWithChanges({color: window.getComputedStyle(event.target).backgroundColor})
+                    }
+                    return task
+                }))
+            }else {
+                activeCardIndex = habits.indexOf(activeCard)
+                setHabits(habits.map((habit,i) => {
+                    if(i === activeCardIndex){
+                        return habit.cloneWithChanges({color: window.getComputedStyle(event.target).backgroundColor})
+                    }
+                    return habit
+                }))
+            }
+            setActiveCard(null)
+        }
+        contextMenu.open && setContextMenu({...contextMenu,open:false})
+    },[activeCard, contextMenu, habits, tasks])
 
     return(
         <>
@@ -196,6 +280,14 @@ export function App(){
                 actualCard={actualCard}
                 stats={stats}
             />
+            <ContextMenu
+                ref={contextMenuRef}
+                colors={colors}
+                open={contextMenu.open}
+                ContextMenuX={contextMenu.x}
+                ContextMenuY={contextMenu.y}
+                closeContextMenu={closeContextMenu}
+            /> 
             <header id="App-header">
                 <h1>Administrador de Tareas</h1>
                 <div>
@@ -247,15 +339,31 @@ export function App(){
                         <section id="at-box">
                             <ButtonAdd content={taskMessage} activateModal={activateModal}/>
                             <DropArea position={0} type={"task"} activeCard={activeCard} onDrop={() => onDrop(0,"task")}></DropArea>
-                            <ShowCards activeCard={activeCard} data={tasks} modify={modifyCard} setActiveCard={setActiveCard} onDrop={onDrop}/>
+                            <ShowCards
+                                data={tasks}
+                                modify={modifyCard}
+                                checkCard={checkCard}
+                                activeCard={activeCard}
+                                setActiveCard={setActiveCard}
+                                onDrop={onDrop}
+                                openContextMenu={openContextMenu}
+                            />
                         </section>
                     </article>
                     <article>
                         <h1>Hábitos</h1>
                         <section id="at-box">
-                        <ButtonAdd content={habitMessage} activateModal={activateModal}/>
-                        <DropArea position={0} type={"habit"} activeCard={activeCard} onDrop={() => onDrop(0,"habit")}></DropArea>
-                        <ShowCards activeCard={activeCard} data={habits} modify={modifyCard} setActiveCard={setActiveCard} onDrop={onDrop}/>
+                            <ButtonAdd content={habitMessage} activateModal={activateModal}/>
+                            <DropArea position={0} type={"habit"} activeCard={activeCard} onDrop={() => onDrop(0,"habit")}></DropArea>
+                            <ShowCards
+                                data={habits}
+                                modify={modifyCard}
+                                checkCard={checkCard}
+                                activeCard={activeCard}
+                                setActiveCard={setActiveCard}
+                                onDrop={onDrop}
+                                openContextMenu={openContextMenu}
+                            />
                         </section>
                     </article>
                     <article>

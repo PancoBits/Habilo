@@ -1,5 +1,5 @@
 export class Card{
-    constructor(id,name,description,due,priority,tags,stats,isFinished,type,position){
+    constructor(id,name,description,due,priority,tags,stats,isFinished,type,position,color){
         this.id = id;
         this.name = name;
         this.description = description;
@@ -10,6 +10,7 @@ export class Card{
         this.isFinished = isFinished;
         this.type = type;
         this.position = position;
+        this.color = color;
     }
 
     set setfinished(isFinished){
@@ -17,5 +18,12 @@ export class Card{
     }
     set setposition(position){
         this.position = position;
+    }
+    set setcolor(color){
+        this.color = color;
+    }
+
+    cloneWithChanges(changes){
+        return Object.assign(new Card(),this,changes);
     }
 }
