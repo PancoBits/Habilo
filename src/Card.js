@@ -1,4 +1,5 @@
 export class Card{
+    awards;
     constructor(id,name,description,due,priority,tags,stats,isFinished,type,position,color){
         this.id = id;
         this.name = name;

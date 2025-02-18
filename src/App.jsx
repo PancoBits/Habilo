@@ -42,6 +42,17 @@ export function App(){
         y: 0
     })
 
+    const [slime,setSlime] = useState({
+        name: "Habilo",
+        level: {level:2,progress:0},
+        life: 100,
+        gel: 1000,
+        Strength: {level:1,progress:0},
+        Intelligence: {level:1,progress:0},
+        Social: {level:1,progress:0},
+        Welfare: {level:1,progress:0}
+    })
+
     const [habits, setHabits] = useState([new Card(
         0,
         "Leer un libro al mes",
@@ -49,8 +60,8 @@ export function App(){
         null,
         "Alta",
         ["personal","habilidad"],
-        ["Inteligencia", "Bienestar"],
-        true,
+        ["Intelligence", "Welfare"],
+        false,
         "habit",
         0,
         "aquamarine"
@@ -60,11 +71,11 @@ export function App(){
         0,
         "Estudiar robótica",
         "Para el proyecto final",
-        new Date(),
+        new Date(2025,0,22),
         "Media",
         ["estudio"],
-        ["Inteligencia"],
-        true,
+        ["Intelligence"],
+        false,
         "task",
         0,
         "red"
@@ -75,7 +86,7 @@ export function App(){
         new Date(),
         "Alta",
         ["personal"],
-        ["Inteligencia","Social"],
+        ["Intelligence","Social"],
         false,
         "task",
         1,
@@ -84,11 +95,11 @@ export function App(){
 
     const stats = [{
         id: "0",
-        name: "Fuerza",
+        name: "Strength",
         check: false
     },{
         id: "1",
-        name: "Inteligencia",
+        name: "Intelligence",
         check: false
     },{
         id: "2",
@@ -96,7 +107,7 @@ export function App(){
         check: false
     },{
         id: "3",
-        name: "Bienestar",
+        name: "Welfare",
         check: false
     }]
 
@@ -128,6 +139,25 @@ export function App(){
             document.removeEventListener("dragstart",closeContextMenu)
         }
     },[contextMenu])
+
+    useEffect(()=>{
+        console.log(slime)
+        document.querySelector("#level").style.width = `${slime.level.progress}%`;
+        document.querySelector("#life").style.width = `${slime.life}%`
+
+        function createProgressBar(name,divisions,progress) {
+            console.log(name,divisions,progress)
+            const progressBar = document.getElementById(name);
+            progressBar.innerHTML = '';
+            for (let i = 0; i < divisions; i++) {
+                const segment = document.createElement('div');
+                segment.classList.add('progress-segment');
+                progressBar.appendChild(segment);
+            }
+            [].filter.call(document.querySelectorAll(`#${name} .progress-segment`),(_,id) => id < progress).forEach(e => e.style.backgroundColor = "#7fffd4")
+        }
+        stats.forEach(e=> createProgressBar(e.name,slime[e.name].level,slime[e.name].progress))
+    },[slime])
 
     const activateModal = (content) => {
         content === habitMessage ? setIsTask(false) : setIsTask(true)
@@ -199,6 +229,7 @@ export function App(){
     }
 
     const checkCard = (card,isCheck) => {
+
         if(card.type === "task"){
             const cardIndex = tasks.indexOf(card)
             setTasks(tasks.map((task,i) => {
@@ -215,6 +246,77 @@ export function App(){
                 }
                 return habit
             }))
+        }
+        if(isCheck){
+            if(typeof(card.awards) === "undefined"){
+                let value, award, level
+
+                switch (card.priority) {
+                    case "Baja":
+                        award = Math.floor(Math.random() * (200 - 1 + 1)) + 1;
+                        value = 0.20;
+                        break;
+                    case "Media":
+                        award = Math.floor(Math.random() * (600 - 200 + 1)) + 200;
+                        value = 0.60;
+                        break;
+                    case "Alta":
+                        award = Math.floor(Math.random() * (800 - 600 + 1)) + 600;
+                        value = 0.80;
+                        break;
+                    default:
+                        award = Math.floor(Math.random() * (400 - 200 + 1)) + 200;
+                        value = 0.40;
+                }
+                let progress = Math.round(100*value/slime.level.level);
+
+                progress+slime.level.progress >= 100 ? level = {level:slime.level.level+1,progress:0}
+                                                     : level = {level:slime.level.level,progress:slime.level.progress+progress}
+                
+                let auxSlime = {...slime,level:level,gel:slime.gel+award}
+                
+                card.stats.forEach(e => {
+                    let {level,progress} = slime[e]
+
+                    if(progress + 1 >= level){
+                        level++;
+                        progress = 0
+                    }else{
+                        progress++;
+                    }
+                    auxSlime = {...auxSlime,[e]: {level:level,progress:progress}};
+                })
+
+                setSlime(auxSlime)
+
+                if(card.type === "task"){
+                    const cardIndex = tasks.indexOf(card)
+                    setTasks(tasks.map((task,i) => {
+                        if(i === cardIndex){
+                            return task.cloneWithChanges({awards: {award: award,progress: progress}})
+                        }
+                        return task
+                    }))
+                }else {
+                    const cardIndex = habits.indexOf(card)
+                    setHabits(habits.map((habit,i) => {
+                        if(i === cardIndex){
+                            return habit.cloneWithChanges({awards: {award: award,progress: progress}})
+                        }
+                        return habit
+                    }))
+                }
+            }else{
+                let level
+                if(card.awards.progress+slime.level.progress >= 100)
+                    level = {level:slime.level.level+1,progress:0}
+                else
+                    level = {level:slime.level.level,progress:slime.level.progress+card.awards.progress}
+                setSlime({...slime,level:level,gel:slime.gel+card.awards.award})
+            }
+        }else{
+            let level = {level:slime.level.level,progress:slime.level.progress-card.awards.progress}
+            setSlime({...slime,level:level,gel:slime.gel-card.awards.award})
         }
     } 
 
@@ -291,7 +393,7 @@ export function App(){
             <header id="App-header">
                 <h1>Administrador de Tareas</h1>
                 <div>
-                    <img id="logo" src="./src/assets/a.svg" alt="Slime"/>
+                    <img src="./src/assets/a.svg" alt="Slime"/>
                 </div>
                 <div>
                     <img src="./src/assets/store.svg" alt="Store"/>
@@ -304,17 +406,20 @@ export function App(){
             <main>
                 <section className="App">
                     <article id="status">
-                        <h3>Nivel de Mascota</h3>
+                        <h3>Lvl. {slime.level.level < 10 ? `0${slime.level.level}` : `${slime.level.level}`} {slime.level.progress}/100</h3>
                         <div className="status-bar">
                             <div id="level"></div>
                         </div>
-                        <h3>Vida de Mascota</h3>
+                        <h3>{slime.life}/100</h3>
                         <div className="status-bar">
                             <div id="life"></div>
                         </div>
-                        <h3>Gelatina</h3>
+                        <h3>Gel:</h3>
                         <div className="status-bar">
-                            <div id="gelatine"></div>
+                            <div id="gel">
+                                <img id="logo" src="./src/assets/a.svg" alt="Slime"/>
+                                <span>{slime.gel}</span>
+                            </div>            
                         </div>
                     </article>
 
@@ -322,14 +427,21 @@ export function App(){
                         <div id="pet">
                             <img src="./src/assets/a.svg" alt="Slime"/>
                         </div>
-                        <h3>Nombre Mascota</h3>
+                        <h3>{slime.name}</h3>
                     </article>
 
-                    <article>
-                        <h3>Fuerza</h3>
-                        <h3>Inteligencia</h3>
-                        <h3>Social</h3>
-                        <h3>Bienestar</h3>
+                    <article id="stats">
+                    
+                    {stats.map(e=>{
+                        return (<article key={e.id}>
+                            {e.name} Lvl. {slime[e.name].level < 10 ? `0${slime[e.name].level}` : `${slime[e.name].level}`}
+                            <div className="status-bar">
+                            <div id={e.name}></div>
+                            </div>
+                            </article>)
+                    })}
+                    
+                        
                     </article>
                 </section>
 
