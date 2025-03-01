@@ -1,0 +1,25 @@
+.cm_button {
+  border-radius: 100%;
+  border: none;
+  width: 21%;
+  padding: 10.5% 0;
+  margin: 1.5%;
+  cursor: pointer;
+}
+
+.CM_show {
+  display: flex;
+  flex-wrap: wrap;
+  position: absolute;
+  opacity: 1;
+  background-color: white;
+  width: clamp(100px, 8vw, 10vw);
+  padding: clamp(5px, 0.3vw, 0.5vw);
+  justify-content: center;
+  border-radius: 10px;
+  z-index: 1;
+}
+
+.CM_notshow {
+  display: none;
+}

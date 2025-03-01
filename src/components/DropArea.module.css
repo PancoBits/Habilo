@@ -1,0 +1,16 @@
+.da_show{   
+    text-align: center;
+    line-height: 20vh;
+    border-radius: 1vw;
+    border: 2px dashed aquamarine;
+    padding: clamp(5px, 1.5vw, 10px);
+    margin: clamp(5px, 1.5vw, 10px);
+    height: 20vh;
+    opacity: 1;
+    transition: all 0.5s ease-in-out;
+}
+
+.da_notshow{
+    font-size: 0.5rem;
+    opacity: 0;
+}

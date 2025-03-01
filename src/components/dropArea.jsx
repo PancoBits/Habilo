@@ -1,4 +1,5 @@
 import {useState} from "react";
+import styles from "./DropArea.module.css";
 
 const DropArea = ({position,type,activeCard,onDrop}) => {
     const [isDrop,setIsDrop] = useState(false)
@@ -15,7 +16,7 @@ const DropArea = ({position,type,activeCard,onDrop}) => {
                             setIsDrop(false)
                         }}}
             onDragOver={e => differentPosition() && (sameType(e) && e.preventDefault())}
-            className={isDrop ? "da-show" : "da-notshow"}>
+            className={isDrop ? styles.da_show : styles.da_notshow}>
             Dejar aquí</div>
 } 
 

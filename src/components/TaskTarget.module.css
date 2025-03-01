@@ -1,0 +1,116 @@
+.Task{
+    background-color: #eaeaea;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.Task *{
+    margin: 0;
+}
+
+.Task.dragging{
+    opacity: 0.7;
+    border: 1px dashed #333;
+}
+
+.Task article{
+    padding: clamp(5px, 1.5vw, 10px);
+    width: 70%;
+    cursor: pointer;
+    display: flex;
+    flex-wrap: wrap;
+    overflow: auto;
+}
+
+.Task article *{
+    flex-grow: 1;
+}
+
+.Task article p{
+    width: 100%;
+}
+
+.Task_check{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 0 10px 10px 0;
+    width: 30%;
+    border: none;
+    background-color: #7fffd4;
+}
+
+.Task input[type="checkbox"]{
+    cursor: pointer;
+    border-radius: 100%;
+    background-color: #fff;
+    appearance: none;
+    margin: 0;
+    width: clamp(40px,6vw,6vh);
+    height: clamp(40px,6vw,6vh);
+    display: grid;
+    place-content: center;
+}
+
+.Task input[type="checkbox"]::before {
+    width: clamp(20px,1.5vw,1.8vw);
+    height: clamp(20px,1.5vw,1.8vw);
+    content: "";
+    transform: scale(0);
+    transition: 120ms transform ease-in-out;
+    box-shadow: inset clamp(20px,1.5vw,1.8vw) clamp(20px,1.5vw,1.8vw) #06c200;
+    transform-origin: center;
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+  }
+
+.Task input[type="checkbox"]:checked::before {
+    transform: scale(1);
+  }
+
+.Task h3{
+    font-size: 1em;
+}
+
+.triangulo{
+    width: 0;
+    height: 0;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+}
+
+.message {
+    background: white;
+    color: black;
+    max-width: 10px;
+    min-height: 10px;
+    padding: 10px;
+    position: relative;
+    border-radius: 3px;
+  
+    &::after {
+      --size: 8px;
+      content: "";
+      display: block;
+      width: var(--size);
+      height: var(--size);
+      position: absolute;
+      background: white;
+      bottom: calc(var(--size) * -0.7);
+      clip-path: polygon(0 0, 100% 0, 0 100%);
+    }
+}
+
+.element_cover{
+    max-width: 20px;
+    max-height: 20px;
+    margin: 0.4vh 0.5vw 0.4vh 0;
+}
+
+.circle{
+    border: #7fffd4 2px solid;
+    border-radius: 50%;
+    width: 23px;
+    height: 23px;
+}

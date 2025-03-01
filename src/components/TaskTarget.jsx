@@ -1,8 +1,22 @@
 import { useState } from "react"
+import styles from "./TaskTarget.module.css"
 
 const Task = ({card,modify,checkCard,setActiveCard,openContextMenu}) => {
     const [isChecked, setIsChecked] = useState(card.isFinished)
     
+    const cardPriority = () => {
+        switch(card.priority){
+            case "Alta":
+                return "red";
+            case "Media":
+                return "orange";
+            case "Baja":
+                return "green";
+            default:
+                return "gray";
+        }
+    }
+
     const cardDue = () => {
         if(card.due){
             if(new Date().getMonth() === card.due.getMonth() && new Date().getDate() === card.due.getDate())
@@ -18,17 +32,23 @@ const Task = ({card,modify,checkCard,setActiveCard,openContextMenu}) => {
     }
 
     return(
-        <div draggable onDragStart={ e =>{setActiveCard(card); e.target.classList.add("dragging")}} onDragEnd={e => {setActiveCard(null); e.target.classList.remove("dragging")}} className="Task">
+        <div draggable onDragStart={ e =>{setActiveCard(card); e.target.classList.add("dragging")}} onDragEnd={e => {setActiveCard(null); e.target.classList.remove("dragging")}} className={styles.Task}>
             <article onClick={()=>modify(card)}>
-                <h1 style={{margin: "initial"}}>{card.name}</h1>
-                <p style={{margin: "initial"}}>{card.description}</p>
-                <p style={{margin: "initial"}}>{card.priority}</p>
-                <p style={{margin: "initial"}}>{card.tags}</p>
-                <p style={{margin: "initial"}}>{card.stats}</p>
-                <p style={{margin: "initial"}}>{card.isFinished}</p>
-                {card.due && <h4 style={{margin: "initial", color: `${cardDue()}`}}>{card.due.toLocaleDateString("es-ES")}</h4>}
+                <h3>{card.name}</h3>
+                <p>{card.description}</p>
+                <abbr className={styles.element_cover} title={card.priority ? `${card.priority} Priority` : "No priority"}>
+                    <div className={styles.triangulo} style={{borderLeft: `20px solid ${cardPriority()}`}}></div>
+                </abbr>
+                <abbr className={styles.element_cover} title={card.tags ? `Tags: ${card.tags}` : "No tags"}>
+                    <div className={styles.message}></div>
+                </abbr>
+                <abbr className={styles.element_cover} title={`Stats: ${card.stats}`}>
+                   <div className={styles.circle}></div>
+                </abbr>
+                <p>{card.isFinished}</p>
+                {card.due && <h4 style={{color: `${cardDue()}`}}>{card.due.toLocaleDateString("es-ES")}</h4>}
             </article>
-            <div className="task-check" style={{backgroundColor:`${card.color}`}} onContextMenu={ e => openContextMenu(e,card)}>
+            <div className={styles.Task_check} style={{backgroundColor:`${card.color}`}} onContextMenu={ e => openContextMenu(e,card)}>
                 <input checked={isChecked} type="checkbox" onChange={actIsFinished} name="check"></input>
             </div>
         </div>

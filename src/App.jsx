@@ -1,14 +1,14 @@
-import "./App.css"
+import styles from "./App.module.css";
 import { Card } from "./Card";
 import Task from "./components/TaskTarget"
 import DialogAdd from "./components/DialogAdd";
-import DropArea from "./components/dropArea"
+import DropArea from "./components/DropArea"
 import ContextMenu from "./components/ContextMenu";
 import {Fragment,useState, useRef, useEffect, useCallback } from "react";
 
 const ButtonAdd = ({content,activateModal}) => {
     return(
-        <button className="at-button" onClick={() => activateModal(content)}>{content}</button>
+        <button className={styles.at_button} onClick={() => activateModal(content)}>{content}</button>
     )
 };
 
@@ -47,8 +47,8 @@ export function App(){
         level: {level:2,progress:0},
         life: 100,
         gel: 1000,
-        Strength: {level:1,progress:0},
-        Intelligence: {level:1,progress:0},
+        Strength: {level:2,progress:0},
+        Intelligence: {level:2,progress:1},
         Social: {level:1,progress:0},
         Welfare: {level:1,progress:0}
     })
@@ -141,23 +141,26 @@ export function App(){
     },[contextMenu])
 
     useEffect(()=>{
-        console.log(slime)
-        document.querySelector("#level").style.width = `${slime.level.progress}%`;
-        document.querySelector("#life").style.width = `${slime.life}%`
+        document.getElementById(`${styles.level}`).style.width = `${slime.level.progress}%`;
+        document.getElementById(`${styles.life}`).style.width = `${slime.life}%`
 
         function createProgressBar(name,divisions,progress) {
-            console.log(name,divisions,progress)
-            const progressBar = document.getElementById(name);
+            const progressBar = document.getElementById(`${styles[name]}`);
             progressBar.innerHTML = '';
             for (let i = 0; i < divisions; i++) {
                 const segment = document.createElement('div');
-                segment.classList.add('progress-segment');
+                segment.classList.add(`${styles.progress_segment}`);
                 progressBar.appendChild(segment);
             }
-            [].filter.call(document.querySelectorAll(`#${name} .progress-segment`),(_,id) => id < progress).forEach(e => e.style.backgroundColor = "#7fffd4")
+            [].filter.call(document.querySelectorAll(`#${styles[name]} .${styles.progress_segment}`),(_,id) => id < progress).forEach(e => e.style.backgroundColor = "#7fffd4")
         }
         stats.forEach(e=> createProgressBar(e.name,slime[e.name].level,slime[e.name].progress))
     },[slime])
+
+    const changeName = (event) =>{
+        console.log("a",event.target)
+        //setSlime({...slime,name:event.target.value})
+    }
 
     const activateModal = (content) => {
         content === habitMessage ? setIsTask(false) : setIsTask(true)
@@ -390,65 +393,65 @@ export function App(){
                 ContextMenuY={contextMenu.y}
                 closeContextMenu={closeContextMenu}
             /> 
-            <header id="App-header">
+            <header id={styles.App_header}>
                 <h1>Administrador de Tareas</h1>
                 <div>
                     <img src="./src/assets/a.svg" alt="Slime"/>
                 </div>
-                <div>
+                {/*<div>
                     <img src="./src/assets/store.svg" alt="Store"/>
                 </div>
                 <div>
                 <img src="./src/assets/user.svg" alt="User"/>
-                </div>
+                </div>*/}
             </header>
             
-            <main>
-                <section className="App">
-                    <article id="status">
-                        <h3>Lvl. {slime.level.level < 10 ? `0${slime.level.level}` : `${slime.level.level}`} {slime.level.progress}/100</h3>
-                        <div className="status-bar">
-                            <div id="level"></div>
+            <div style={{background: "white"}}>
+                <section className={styles.App}>
+                    <article className={styles.App_info}>
+                        <h2>Lvl. {slime.level.level < 10 ? `0${slime.level.level}` : `${slime.level.level}`} {slime.level.progress}/100</h2>
+                        <div className={styles.status_bar}>
+                            <div id={styles.level}></div>
                         </div>
-                        <h3>{slime.life}/100</h3>
-                        <div className="status-bar">
-                            <div id="life"></div>
+                        <h2>{slime.life}/100</h2>
+                        <div className={styles.status_bar}>
+                            <div id={styles.life}></div>
                         </div>
-                        <h3>Gel:</h3>
-                        <div className="status-bar">
-                            <div id="gel">
-                                <img id="logo" src="./src/assets/a.svg" alt="Slime"/>
+                        <h2>Gel:</h2>
+                        <div className={styles.status_bar}>
+                            <div id={styles.gel}>
                                 <span>{slime.gel}</span>
                             </div>            
                         </div>
                     </article>
 
-                    <article>
-                        <div id="pet">
+                    <article id={styles.slime} className={styles.App_info}>
+                        <div id={styles.slime_img}>
                             <img src="./src/assets/a.svg" alt="Slime"/>
                         </div>
-                        <h3>{slime.name}</h3>
+                        <input type="text" id={styles.name} onClick={changeName} autoComplete="off" readOnly value={slime.name} />
                     </article>
 
-                    <article id="stats">
+                    <article id={styles.App_stats} className={styles.App_info}>
                     
-                    {stats.map(e=>{
-                        return (<article key={e.id}>
-                            {e.name} Lvl. {slime[e.name].level < 10 ? `0${slime[e.name].level}` : `${slime[e.name].level}`}
-                            <div className="status-bar">
-                            <div id={e.name}></div>
-                            </div>
-                            </article>)
-                    })}
+                        {stats.map(e=>{
+                            return (<article key={e.id}>
+                                <h2>{e.name} Lvl. {slime[e.name].level < 10 ? `0${slime[e.name].level}` : `${slime[e.name].level}`}</h2>
+                                <div className={styles.status_bar}>
+                                <div id={styles[e.name]}></div>
+                                </div>
+                                </article>)
+                        })}
                     
                         
                     </article>
                 </section>
+                </div>
 
-                <section id="App-tracker">
-                    <article>
-                        <h1>Por Hacer</h1>
-                        <section id="at-box">
+                <section id={styles.App_tracker}>
+                    <article className={styles.App_info}>
+                        <h2>Por Hacer</h2>
+                        <section id={styles.at_box}>
                             <ButtonAdd content={taskMessage} activateModal={activateModal}/>
                             <DropArea position={0} type={"task"} activeCard={activeCard} onDrop={() => onDrop(0,"task")}></DropArea>
                             <ShowCards
@@ -462,9 +465,9 @@ export function App(){
                             />
                         </section>
                     </article>
-                    <article>
-                        <h1>Hábitos</h1>
-                        <section id="at-box">
+                    <article className={styles.App_info}>
+                        <h2>Hábitos</h2>
+                        <section id={styles.at_box}>
                             <ButtonAdd content={habitMessage} activateModal={activateModal}/>
                             <DropArea position={0} type={"habit"} activeCard={activeCard} onDrop={() => onDrop(0,"habit")}></DropArea>
                             <ShowCards
@@ -478,14 +481,12 @@ export function App(){
                             />
                         </section>
                     </article>
-                    <article>
-                        <h1>Calendario</h1>
-                        <section id="at-box">
+                    <article className={styles.App_info}>
+                        <h2>Calendario</h2>
+                        <section id={styles.at_box}>
                         </section>
                     </article>
                 </section>
-
-            </main>
         </>
     )
 }

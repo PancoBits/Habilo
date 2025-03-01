@@ -1,4 +1,5 @@
-import { useState,forwardRef, useEffect } from "react";
+import styles from "./DialogAdd.module.css";
+import { useState,useRef, forwardRef, useEffect } from "react";
 import DatePicker, {registerLocale} from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import {es}from 'date-fns/locale';
@@ -7,6 +8,8 @@ registerLocale("es",es)
 const DialogAdd = forwardRef (function DialogAdd({closeModal,dialogOpen,startDate,setStartDate,isTask,isModified,actualCard,stats},ref) {
     const [sendButton, setSendButton] = useState([false,false]);
     const [checkboxes,setCheckboxes] = useState(stats)
+    const buttonSendRef = useRef(null);
+    const checkboxesRef = useRef([]);
     
     useEffect(() => {
         if(actualCard.stats !== undefined){
@@ -17,7 +20,7 @@ const DialogAdd = forwardRef (function DialogAdd({closeModal,dialogOpen,startDat
                 ))
             });
             setSendButton([true,true])
-            document.querySelector("#send").disabled = false
+            buttonSendRef.current.disabled = false
         }
     },[actualCard])
 
@@ -34,15 +37,15 @@ const DialogAdd = forwardRef (function DialogAdd({closeModal,dialogOpen,startDat
             if(!(event.target.value === "" || event.target.value.trim() === "")) actualButton=[].concat(sendButton.map((e,i) => i === 0 ? true : e));
             else actualButton=[].concat(sendButton.map((e,i) => i === 0 ? false : e));
         }else{
-            if(Array.prototype.some.call(document.querySelectorAll("input[name='stat']"), (e) => e.checked)) actualButton=[].concat(sendButton.map((e,i) => i === 1 ? true : e));
+            if(checkboxesRef.current.some((e) => e.checked)) actualButton=[].concat(sendButton.map((e,i) => i === 1 ? true : e));
             else actualButton=[].concat(sendButton.map((e,i) => i === 1 ? false : e));
             setCheckboxes(checkboxes.map(stat => 
                 stat.id === event.target.id ? {...stat,check:!stat.check} : stat
             ))
         }
         setSendButton(actualButton)
-        if(actualButton[0] && actualButton[1]) document.querySelector("#send").disabled = false
-        else document.querySelector("#send").disabled = true
+        if(actualButton[0] && actualButton[1]) buttonSendRef.current.disabled = false
+        else buttonSendRef.current.disabled = true
     }
 
     const confirmation = () => {
@@ -60,13 +63,13 @@ const DialogAdd = forwardRef (function DialogAdd({closeModal,dialogOpen,startDat
     }
 
     return( 
-            <dialog ref={ref} className="add-item" onKeyDown={noExit}>
-                <form key={dialogOpen} onSubmit={sendForm} className="info-item">
-                    <h1>Nombre</h1>
-                    <textarea id="name" autoComplete="on" autoFocus placeholder="Ej: Hacer ejercicio" onChange={isFilled} defaultValue={actualCard.name}></textarea>
-                    <h1>Descrición</h1>
+            <dialog ref={ref} className={styles.add_item} onKeyDown={noExit}>
+                <form key={dialogOpen} onSubmit={sendForm} className={styles.info_item}>
+                    <h2>Nombre</h2>
+                    <textarea id={styles.name} name="name" autoComplete="on" autoFocus placeholder="Ej: Hacer ejercicio" onChange={isFilled} defaultValue={actualCard.name}></textarea>
+                    <h2>Descrición</h2>
                     <textarea id="description" defaultValue={actualCard.description}></textarea>
-                    {isTask && <h1>Finaliza</h1>}
+                    {isTask && <h2>Finaliza</h2>}
                     {isTask && <DatePicker
                         id="date"
                         showIcon
@@ -78,7 +81,7 @@ const DialogAdd = forwardRef (function DialogAdd({closeModal,dialogOpen,startDat
                         locale="es"
                         dateFormat="dd/MM/yyyy"
                         placeholderText="Sin fecha de finalización"/>}
-                    <h1>Prioridad</h1>
+                    <h2>Prioridad</h2>
 
                     <select name="priority" defaultValue={actualCard.priority}>
                         <option value={""}>Seleccione Prioridad</option>
@@ -87,14 +90,14 @@ const DialogAdd = forwardRef (function DialogAdd({closeModal,dialogOpen,startDat
                         <option value={"Baja"}>Baja</option>
                     </select>
                     
-                    <h1>Etiqueta</h1>
+                    <h2>Etiqueta</h2>
                     <textarea name="tags" defaultValue={typeof(actualCard.tags) === "undefined" ? undefined : actualCard.tags.join(", ")}></textarea>
 
                     <div>
-                        {stats.map(stat => <input key={stat.id} type="checkbox" id={stat.id} name="stat" value={stat.name} checked={checkboxes[stat.id].check} onChange={isFilled}/>) }
+                        {stats.map(stat => <input key={stat.id} type="checkbox" id={stat.id} name="stat" ref={(element)=>(checkboxesRef.current[stat.id] = element)} value={stat.name} checked={checkboxes[stat.id].check} onChange={isFilled}/>) }
                     </div>
                     <button type="button" onClick={() => confirm("Estás seguro de cerrar? se perderá cualquier progreso") && sendForm()}>Cancelar</button>
-                    <button type="submit" id="send" disabled>Guardar</button>
+                    <button ref={buttonSendRef} type="submit" disabled>Guardar</button>
                     {isModified && <button type="button" onClick={event => confirmation() && sendForm(event)}>Eliminar</button>}
                 </form>
             </dialog>
