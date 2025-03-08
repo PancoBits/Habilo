@@ -1,177 +1,177 @@
 #App_header {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-evenly;
-    align-items: center;
-    overflow: auto;
-    height: clamp(60px, 8vh, 10vh);
-    max-width: 1440px;
-    margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+  align-items: center;
+  overflow: auto;
+  height: clamp(60px, 8vh, 10vh);
+  margin: 0 auto;
 }
 
-img{
-    width: 100%;
-    height: auto;
+img {
+  width: 100%;
+  height: auto;
 }
 
-#App_header div{
-    width: clamp(50px, 10vw, 60px);
+#App_header div {
+  width: clamp(50px, 10vw, 60px);
 }
 
 #App_header h1 {
-    font-size: clamp(1em, 5vw, 2em);
-    margin: 0;
+  font-size: clamp(1em, 5vw, 2em);
+  margin: 0;
 }
 
 .App {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-evenly;
-    align-items: center;
-    max-width: 1440px;
-    margin: 0 auto;
-    gap: 5vw;
-    padding: 0 5vw 2vh 5vw;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+  align-items: center;
+  margin: 0 auto;
+  gap: 5vw;
+  padding: 0 5vw 2vh 5vw;
 }
 
-.App h2{
-    font-size: clamp(1.1em, 1.5vw, 1.2em);
-    margin: 1vh;
+.App h2 {
+  font-size: clamp(1.1em, 1.5vw, 1.2em);
+  margin: 1vh;
 }
 
 .App_info {
-    flex: 1 1 200px;
-    min-width: 160px;
+  flex: 1 1 250px;
+  min-width: 160px;
 }
 
-#logo{
-    padding: 0.5%;
-    width: 14%;
+#logo {
+  padding: 0.5%;
+  width: 14%;
 }
 
 .status_bar {
-    height: clamp(30px,3vh,3.5vh);
-    background-color: #ffffff;
-    border-radius: 10px;
-    border: 2px solid #c7c7c7;
-    box-sizing: border-box;
-    overflow: hidden;
+  height: clamp(30px, 3vh, 3.5vh);
+  background-color: #ffffff;
+  border-radius: 10px;
+  border: 2px solid #c7c7c7;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 #App_stats .status_bar {
-    height: clamp(20px,2.5vh,3.5vh);
+  height: clamp(20px, 2.5vh, 3.5vh);
 }
 
-#name{
-    font-size: clamp(1.3em, 3vw, 2em);
-    font-family: inherit;
-    border: none;
-    text-align: center;
-    color:black;
-    font-weight: bold;
-    cursor: pointer;
-    background-color: transparent;
+#name {
+  font-size: clamp(1.3em, 3vw, 2em);
+  font-family: inherit;
+  border: none;
+  text-align: center;
+  color: black;
+  font-weight: bold;
+  cursor: pointer;
+  background-color: transparent;
 }
 
 #level {
-    width: 0%;
-    height: 100%;
-    background-color: #fffd8f;
-    border-radius: 8px;
-    transition: all 1s ease-in-out;
+  width: 0%;
+  height: 100%;
+  background-color: #fffd8f;
+  border-radius: 8px;
+  transition: all 1s ease-in-out;
 }
 #life {
-    width: 100%;
-    height: 100%;
-    background-color: #ff0037;
-    border-radius: 8px;
-    transition: all 1s ease-in-out;
+  width: 100%;
+  height: 100%;
+  background-color: #ff0037;
+  border-radius: 8px;
+  transition: all 1s ease-in-out;
 }
 #gel {
-    padding: 0 2%;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-sizing: border-box;
+  padding: 0 2%;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
 }
 
-#slime{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+#slime {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-#slime_img{
-    width: clamp(225px,20vw,270px)
+#slime_img {
+  width: clamp(225px, 20vw, 270px);
 }
 
 .progress_segment {
-    flex: 1;
+  flex: 1;
 }
 
 .progress_segment:not(:last-child) {
-    border-right: 2px solid #c7c7c7;
+  border-right: 2px solid #c7c7c7;
 }
 
 #Strength {
-    display: flex;
-    width: 100%;
-    height: 100%;
+  display: flex;
+  width: 100%;
+  height: 100%;
 }
 #Intelligence {
-    display: flex;
-    width: 100%;
-    height: 100%;
+  display: flex;
+  width: 100%;
+  height: 100%;
 }
 #Social {
-    display: flex;
-    width: 100%;
-    height: 100%;
+  display: flex;
+  width: 100%;
+  height: 100%;
 }
 #Welfare {
-    display: flex;
-    width: 100%;
-    height: 100%;
+  display: flex;
+  width: 100%;
+  height: 100%;
 }
 
 #App_tracker {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-evenly;
-    overflow: auto;
-    max-width: 1440px;
-    margin:0 auto;
-    gap: 2vw;
-    padding: 0 5vw;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+  overflow: auto;
+  margin: 0 auto;
+  gap: 2vw;
+  padding: 0 5vw;
 }
 
-#App_tracker h2{
-    margin: 0.3em;
-    text-align: center;
-    color: white;
-    text-shadow: 2px 2px black;
+#App_tracker h2 {
+  margin: 0.3em;
+  text-align: center;
+  color: white;
+  text-shadow: 2px 2px black;
 }
 
-#at_box{
-    background-color: white;
-    border-radius: 20px;
-    padding: 10px;
-    display: flex;
-    flex-direction:column;
-    min-height: 40vh;
-    height: fit-content;
+.at_box {
+  background-color: white;
+  border-radius: 20px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  min-height: 40vh;
+  height: fit-content;
 }
 
-.at_button{
-    font: inherit;
-    border: none;
-    border-radius: 10px;
-    cursor: grab;
-    background-color: #ff5e5e;
+.at_button {
+  font: inherit;
+  border: none;
+  border-radius: 10px;
+  cursor: grab;
+  background-color: #ff5e5e;
 }
 
-.at_button:hover{
-    background-color: #ff7e7e;
+.at_button:hover {
+  background-color: #ff7e7e;
+}
+#calendar {
+  align-items: center;
 }

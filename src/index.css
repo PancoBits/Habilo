@@ -1,9 +1,44 @@
 body {
-   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-   margin: 0;
-   background-color: #5DC1B9;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  margin: 0;
+  background-color: #5dc1b9;
 }
 
 * {
-   box-sizing: border-box;
- }
+  box-sizing: border-box;
+}
+
+.react-calendar-heatmap .color-scale-1 {
+  fill: hsl(
+    160,
+    100%,
+    75%
+  ); /* Original: 160° hue, 100% saturation, 75% lightness */
+}
+
+.react-calendar-heatmap .color-scale-2 {
+  fill: hsl(160, 95%, 65%);
+}
+
+.react-calendar-heatmap .color-scale-3 {
+  fill: hsl(160, 90%, 55%);
+}
+
+.react-calendar-heatmap .color-scale-4 {
+  fill: hsl(160, 85%, 45%);
+}
+
+.react-calendar-heatmap .color-scale-5 {
+  fill: hsl(160, 80%, 35%);
+}
+.react-calendar-heatmap-all-weeks {
+  transform: translate(8px, 15px) !important;
+}
+.react-calendar-heatmap-weekday-labels {
+  transform: translate(8px, 0) !important;
+}
+.react-calendar-heatmap {
+  max-width: 400px;
+  min-width: 280px;
+}
