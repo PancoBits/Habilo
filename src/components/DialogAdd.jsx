@@ -1,5 +1,6 @@
 import styles from "./DialogAdd.module.css";
 import { useState,useRef, forwardRef, useEffect } from "react";
+import {Popup, TextArea, Input,Button} from 'pixel-retroui'
 import DatePicker, {registerLocale} from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import {es}from 'date-fns/locale';
@@ -8,6 +9,7 @@ registerLocale("es",es)
 const DialogAdd = forwardRef (function DialogAdd({closeModal,dialogOpen,startDate,setStartDate,isTask,isModified,actualCard,stats},ref) {
     const [sendButton, setSendButton] = useState([false,false]);
     const [checkboxes,setCheckboxes] = useState(stats)
+    const [buttonDisabled, setButtonDisabled] = useState(true)
     const buttonSendRef = useRef(null);
     const checkboxesRef = useRef([]);
     
@@ -20,20 +22,23 @@ const DialogAdd = forwardRef (function DialogAdd({closeModal,dialogOpen,startDat
                 ))
             });
             setSendButton([true,true])
-            buttonSendRef.current.disabled = false
+            document.querySelector(`.${styles.buttonSave}`).classList.remove(styles.buttonSave);
+            setButtonDisabled(false)
         }
     },[actualCard])
 
     const sendForm = (event) => {
-        setStartDate(new Date());
-        setSendButton([false,false])
-        setCheckboxes(stats)
-        closeModal(event)
+
+            setStartDate(new Date());
+            setSendButton([false,false])
+            setCheckboxes(stats)
+            closeModal(event)
+        
     }
 
     const isFilled = (event) => {
         let actualButton = [];
-        if(event.target.type === "textarea"){
+        if(event.target.name === "name"){
             if(!(event.target.value === "" || event.target.value.trim() === "")) actualButton=[].concat(sendButton.map((e,i) => i === 0 ? true : e));
             else actualButton=[].concat(sendButton.map((e,i) => i === 0 ? false : e));
         }else{
@@ -44,8 +49,8 @@ const DialogAdd = forwardRef (function DialogAdd({closeModal,dialogOpen,startDat
             ))
         }
         setSendButton(actualButton)
-        if(actualButton[0] && actualButton[1]) buttonSendRef.current.disabled = false
-        else buttonSendRef.current.disabled = true
+        if(actualButton[0] && actualButton[1]) {document.querySelector(`.${styles.buttonSave}`).classList.remove(styles.buttonSave); setButtonDisabled(false)}
+        else {document.querySelector(`button[type="submit"]`).classList.add(styles.buttonSave); setButtonDisabled(true)}
     }
 
     const confirmation = () => {
@@ -55,20 +60,23 @@ const DialogAdd = forwardRef (function DialogAdd({closeModal,dialogOpen,startDat
         return confirm(message)
     }
 
-    const noExit = (event) =>{
-        if(event.key === "Escape"){
-            event.preventDefault();
-            (confirm("Estás seguro de cerrar? se perderá cualquier progreso")) && sendForm()
-        }
-    }
-
     return( 
-            <dialog ref={ref} className={styles.add_item} onKeyDown={noExit}>
-                <form key={dialogOpen} onSubmit={sendForm} className={styles.info_item}>
+            <Popup ref={ref}
+            className="text-center"
+            isOpen={dialogOpen}
+            onClose={(e) => confirm("Estás seguro de cerrar? se perderá cualquier progreso") && sendForm(e)}
+             baseBg="#a900ff"
+            bg="#f6e6ff"
+            >
+                <form key={dialogOpen} onSubmit={(e)=>!buttonDisabled ? sendForm(e) : e.preventDefault()} className={styles.info_item}>
                     <h2>Nombre</h2>
-                    <textarea id={styles.name} name="name" autoComplete="on" autoFocus placeholder="Ej: Hacer ejercicio" onChange={isFilled} defaultValue={actualCard.name}></textarea>
-                    <h2>Descrición</h2>
-                    <textarea id="description" defaultValue={actualCard.description}></textarea>
+                    <Input bg="#fff6e6"
+    textColor="black"
+    borderColor="#ffa900" id={styles.name} name="name" autoComplete="on" autoFocus placeholder="Ej: Hacer ejercicio" onChange={isFilled} defaultValue={actualCard.name}></Input>
+                    <h2>Descripción</h2>
+                    <TextArea bg="#fff6e6"
+    textColor="black"
+    borderColor="#ffa900" className={styles.textAreas} id="description" defaultValue={actualCard.description}></TextArea>
                     {isTask && <h2>Finaliza</h2>}
                     {isTask && <DatePicker
                         id="date"
@@ -83,7 +91,7 @@ const DialogAdd = forwardRef (function DialogAdd({closeModal,dialogOpen,startDat
                         placeholderText="Sin fecha de finalización"/>}
                     <h2>Prioridad</h2>
 
-                    <select name="priority" defaultValue={actualCard.priority}>
+                    <select name="priority" defaultValue={actualCard.priority} id={styles.selector}>
                         <option value={""}>Seleccione Prioridad</option>
                         <option value={"Alta"}>Alta</option>
                         <option value={"Media"}>Media</option>
@@ -91,16 +99,19 @@ const DialogAdd = forwardRef (function DialogAdd({closeModal,dialogOpen,startDat
                     </select>
                     
                     <h2>Etiqueta</h2>
-                    <textarea name="tags" defaultValue={typeof(actualCard.tags) === "undefined" ? undefined : actualCard.tags.join(", ")}></textarea>
+                    <TextArea  bg="#fff6e6"
+                    textColor="black"
+                    borderColor="#ffa900" name="tags" className={styles.textAreas} defaultValue={typeof(actualCard.tags) === "undefined" ? undefined : actualCard.tags.join(", ")}></TextArea>
 
-                    <div>
-                        {stats.map(stat => <input key={stat.id} type="checkbox" id={stat.id} name="stat" ref={(element)=>(checkboxesRef.current[stat.id] = element)} value={stat.name} checked={checkboxes[stat.id].check} onChange={isFilled}/>) }
+                    <h2>Tipo</h2>
+                    <div className={styles.selectorStats}>
+                        {stats.map(stat => <label className={styles.checkImg} key={stat.id}  > <input type="checkbox" id={stat.id} name="stat" ref={(element)=>(checkboxesRef.current[stat.id] = element)}  value={stat.name} checked={checkboxes[stat.id].check} onChange={isFilled}/> <h3>{stat.name}</h3> <img src={stat.src}/> </label>) }
                     </div>
-                    <button type="button" onClick={() => confirm("Estás seguro de cerrar? se perderá cualquier progreso") && sendForm()}>Cancelar</button>
-                    <button ref={buttonSendRef} type="submit" disabled>Guardar</button>
-                    {isModified && <button type="button" onClick={event => confirmation() && sendForm(event)}>Eliminar</button>}
+                    <Button bg="#ff2900" textColor="white" type="button" onClick={(e) => confirm("Estás seguro de cerrar? se perderá cualquier progreso") && sendForm(e)}>Cancelar</Button>
+                    <Button className={styles.buttonSave}  bg="#00ff29" textColor="white"  type="submit">Guardar</Button>
+                    {isModified && <Button type="button" bg="#00d5ff" textColor="white" onClick={event => confirmation() && sendForm(event)}>Eliminar</Button>}
                 </form>
-            </dialog>
+            </Popup>
     )
 })
 

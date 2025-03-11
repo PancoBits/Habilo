@@ -1,5 +1,5 @@
 import styles from "./App.module.css";
-import { Card } from "./Card";
+import { Cards } from "./Cards";
 import Task from "./components/TaskTarget";
 import DialogAdd from "./components/DialogAdd";
 import DropArea from "./components/DropArea";
@@ -8,12 +8,13 @@ import { Fragment, useState, useRef, useEffect, useCallback } from "react";
 import CalendarHeatmap from "react-calendar-heatmap";
 import "react-calendar-heatmap/dist/styles.css";
 import { useLocalStorage } from "./components/useLocalStorage";
+import {Button, ProgressBar, Card} from 'pixel-retroui';
 
 const ButtonAdd = ({ content, activateModal }) => {
   return (
-    <button className={styles.at_button} onClick={() => activateModal(content)}>
+    <Button bg="#ff0000" textColor="#ffffff" onClick={() => activateModal(content)}>
       {content}
-    </button>
+    </Button>
   );
 };
 
@@ -55,7 +56,7 @@ export function App() {
   const [tasks, setTasks] = useLocalStorage(
     "tasks",
     [
-      new Card(
+      new Cards(
         0,
         "Estudiar robótica",
         "Para el proyecto final",
@@ -68,7 +69,7 @@ export function App() {
         0,
         "red"
       ),
-      new Card(
+      new Cards(
         1,
         "Prepararme para entrevista",
         "Por fin se va a conseguir trabajo",
@@ -87,7 +88,7 @@ export function App() {
   const [habits, setHabits] = useLocalStorage(
     "habits",
     [
-      new Card(
+      new Cards(
         0,
         "Leer un libro al mes",
         "Final del año con 12 libros leídos",
@@ -166,7 +167,6 @@ export function App() {
       .sort((a, b) => a - b);
     let fechaActual = fechas[fechas.length - 1];
     let contador = sameDate(fechaActual, new Date()) ? 1 : 0;
-
     for (let i = fechas.length - 2; i >= 0; i--) {
       const fechaAnterior = fechas[i];
       const diferencia = (fechaActual - fechaAnterior) / (1000 * 3600 * 24);
@@ -187,7 +187,7 @@ export function App() {
   const [startDate, setStartDate] = useState(new Date());
   const [isTask, setIsTask] = useState(false);
   const [isModified, setIsModified] = useState(false);
-  const [actualCard, setActualCard] = useState(new Card());
+  const [actualCard, setActualCard] = useState(new Cards());
   const [activeCard, setActiveCard] = useState(null);
   const [datesCalendar, setDatesCalendar] = useState(updateDates());
   const [allStreak, setAllStreak] = useState(calculateStreak());
@@ -201,21 +201,25 @@ export function App() {
       id: "0",
       name: "Strength",
       check: false,
+      src: "../src/assets/knight.png",
     },
     {
       id: "1",
       name: "Intelligence",
       check: false,
+      src: "../src/assets/mage.png",
     },
     {
       id: "2",
       name: "Social",
       check: false,
+      src: "../src/assets/clown.png",
     },
     {
       id: "3",
       name: "Welfare",
       check: false,
+      src: "../src/assets/healer.png",
     },
   ];
 
@@ -257,12 +261,7 @@ export function App() {
   }, [contextMenu]);
 
   useEffect(() => {
-    document.getElementById(
-      `${styles.level}`
-    ).style.width = `${slime.level.progress}%`;
-    document.getElementById(`${styles.life}`).style.width = `${slime.life}%`;
-
-    function createProgressBar(name, divisions, progress) {
+     function createProgressBar(name, divisions, progress) {
       const progressBar = document.getElementById(`${styles[name]}`);
       progressBar.innerHTML = "";
       for (let i = 0; i < divisions; i++) {
@@ -291,7 +290,7 @@ export function App() {
 
   const addNewCardInRecord = (type, id) => {
     let auxObj = {
-      date: new Date().toLocaleDateString("sv-SE"),
+      date: new Date(),
       type: type,
       id: id,
     };
@@ -301,7 +300,7 @@ export function App() {
         sameDate(new Date(record[record.length - 1]?.[0]?.date), new Date())) ||
       sameDate(
         new Date(record[record.length - 1]?.[0]?.date),
-        record[record.length - 2]?.[0]?.date
+        new Date(record[record.length - 2]?.[0]?.date)
       )
     ) {
       let idSame = 0;
@@ -329,10 +328,10 @@ export function App() {
   const activateModal = (content) => {
     content === habitMessage ? setIsTask(false) : setIsTask(true);
     setDialog(!dialogOpen);
-    dialogModal.current.showModal();
   };
 
   const closeModal = (event) => {
+    console.log(event.target)
     if (typeof event !== "undefined") {
       if (event.type === "submit") {
         event.preventDefault();
@@ -353,7 +352,7 @@ export function App() {
           position = habits.length;
         }
 
-        const newCard = new Card(
+        const newCard = new Cards(
           isModified ? actualCard.id : id,
           event.target.name.value,
           event.target.description.value,
@@ -409,9 +408,8 @@ export function App() {
       }
     }
     setDialog(!dialogOpen);
-    setActualCard(new Card());
+    setActualCard(new Cards());
     isModified && setIsModified(!isModified);
-    dialogModal.current.close();
   };
 
   const modifyCard = (card) => {
@@ -419,7 +417,6 @@ export function App() {
     setActualCard(card);
     setIsModified(!isModified);
     setDialog(!dialogOpen);
-    dialogModal.current.showModal();
   };
 
   const checkCard = (card, isCheck) => {
@@ -641,9 +638,9 @@ export function App() {
         closeContextMenu={closeContextMenu}
       />
       <header id={styles.App_header}>
-        <h1>Administrador de Tareas</h1>
+        <h1>¡Tu siguiente aventura!</h1>
         <div>
-          <img src="./src/assets/a.svg" alt="Slime" />
+          <img src="./src/assets/habilo.png" alt="Slime" />
         </div>
         {/*<div>
                     <img src="./src/assets/store.svg" alt="Store"/>
@@ -663,24 +660,31 @@ export function App() {
                 : `${slime.level.level}`}{" "}
               {slime.level.progress}/100
             </h2>
-            <div className={styles.status_bar}>
-              <div id={styles.level}></div>
-            </div>
+            <ProgressBar
+              size="lg"
+              color="#fffc4b"
+              borderColor="black"
+              progress={slime.level.progress}
+            />
+
             <h2>{slime.life}/100</h2>
-            <div className={styles.status_bar}>
-              <div id={styles.life}></div>
-            </div>
+            <ProgressBar
+              size="lg"
+              color="#ff0000"
+              borderColor="black"
+              className="w-full"
+              progress={slime.life}
+            />
+
             <h2>Gel:</h2>
-            <div className={styles.status_bar}>
-              <div id={styles.gel}>
-                <span>{slime.gel}</span>
-              </div>
-            </div>
+            <Card>
+                {slime.gel}
+            </Card>
           </article>
 
           <article id={styles.slime} className={styles.App_info}>
             <div id={styles.slime_img}>
-              <img src="./src/assets/a.svg" alt="Slime" />
+              <img src="./src/assets/habilo.png" alt="Slime"></img>
             </div>
             <input
               type="text"
@@ -702,9 +706,11 @@ export function App() {
                       ? `0${slime[e.name].level}`
                       : `${slime[e.name].level}`}
                   </h2>
+                  <Card>
                   <div className={styles.status_bar}>
                     <div id={styles[e.name]}></div>
                   </div>
+                  </Card>
                 </article>
               );
             })}
@@ -714,7 +720,8 @@ export function App() {
 
       <section id={styles.App_tracker}>
         <article className={styles.App_info}>
-          <h2>Por Hacer</h2>
+        <h2>Por Hacer</h2>
+          <Card>
           <section className={styles.at_box}>
             <ButtonAdd content={taskMessage} activateModal={activateModal} />
 
@@ -734,9 +741,11 @@ export function App() {
               openContextMenu={openContextMenu}
             />
           </section>
+          </Card>
         </article>
         <article className={styles.App_info}>
           <h2>Hábitos</h2>
+          <Card>
           <section className={styles.at_box}>
             <ButtonAdd content={habitMessage} activateModal={activateModal} />
             <DropArea
@@ -755,9 +764,11 @@ export function App() {
               openContextMenu={openContextMenu}
             />
           </section>
+          </Card>
         </article>
         <article className={styles.App_info}>
           <h2>Calendario</h2>
+          <Card>
           <section className={styles.at_box} id={styles.calendar}>
             <CalendarHeatmap
               startDate={
@@ -784,6 +795,7 @@ export function App() {
             />
             <h2>Racha de: {allStreak}</h2>
           </section>
+          </Card>
         </article>
       </section>
     </>

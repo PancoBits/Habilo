@@ -1,26 +1,64 @@
-.add_item{
-    width: clamp(250px,30vw,35vw);
-    height: fit-content;
-}
-
 .info_item{
     display: flex;
     flex-direction: column;
+    width: clamp(250px,30vw,35vw);
+    max-height: 80vh;
+    padding: 0 10px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -ms-overflow-style: none; 
+     scrollbar-width: none;
+}
+
+ .info_item::-webkit-scrollbar {
+  display: none;
 }
 
 .info_item h2{
+    font-weight: bold;
     font-size: clamp(1em, 2vw, 2em);
     margin: 1vh;
+    color: darkviolet;
 }
 
-#name{
+#selector{
+  background: #f6e6ff
+}
+
+.buttonSave{
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.textAreas{
+    max-height: 100px;
+    max-width: 100%;
+    min-width: 100%;
     resize: none;
-    font-family: inherit;
-    border: none;
-    outline: none;
-    border-bottom: 2px solid #AAA;
 }
 
-#name:focus{
-    border-bottom: 2px solid #7fffd4;
+.selectorStats{
+  display: flex;
+  padding: 0 0 15px 0;
 }
+
+.checkImg{
+  width: clamp(20px,25%,800px);
+  font-size: clamp(0.5em, 1vw, 1em);
+}
+
+.checkImg input {
+  display: none;
+  }
+  .checkImg img {
+    cursor: pointer;
+    image-rendering: pixelated;
+    border: 5px solid transparent;
+  }
+  .checkImg input:checked ~ img {
+    filter: drop-shadow(3px 8px 2px rgb(212 127 255));
+    cursor: default;
+  }
+  .checkImg input:checked + h3 {
+    color: darkviolet;
+  }

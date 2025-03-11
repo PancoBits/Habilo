@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { Card } from "../Card";
+import { Cards } from "../Cards";
 
 export const useLocalStorage = (key, initialValue, type) => {
   const [storedValue, setStoredValue] = useState(() => {
@@ -26,7 +26,7 @@ export const useLocalStorage = (key, initialValue, type) => {
 
   return [
     type === "card"
-      ? storedValue.map((element) => new Card().cloneWithChanges(element))
+      ? storedValue.map((element) => new Cards().cloneWithChanges(element))
       : storedValue,
     setValue,
   ];

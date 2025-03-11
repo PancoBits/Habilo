@@ -32,6 +32,10 @@
     width: 100%;
 }
 
+.Task h3{
+    font-weight: bold;
+}
+
 .Task_check{
     display: flex;
     justify-content: center;

@@ -1,4 +1,4 @@
-export class Card {
+export class Cards {
   awards;
   constructor(
     id,
@@ -40,6 +40,6 @@ export class Card {
   }
 
   cloneWithChanges(changes) {
-    return Object.assign(new Card(), this, changes);
+    return Object.assign(new Cards(), this, changes);
   }
 }
