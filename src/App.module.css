@@ -83,8 +83,19 @@ img {
 }
 
 #slime_img {
+  position: relative;
   width: clamp(225px, 20vw, 270px);
   padding: 20px 0px;
+  cursor: pointer;
+}
+
+.imgItem{
+  position: absolute;
+  top:32.5px;
+}
+
+.imgHead{
+  top: 20px;
 }
 
 .progress_segment {
@@ -123,7 +134,7 @@ img {
   overflow: auto;
   margin: 0 auto;
   gap: 2vw;
-  padding: 0 5vw;
+  padding: 0 5vw 25px 5vw;
 }
 
 #App_tracker .App_info > h2 {

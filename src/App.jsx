@@ -1,14 +1,17 @@
+/* eslint-disable react/prop-types */
+import { Fragment, useState, useRef, useEffect, useCallback } from "react";
 import styles from "./App.module.css";
+import {Button, ProgressBar, Card} from 'pixel-retroui';
 import { Cards } from "./Cards";
 import Task from "./components/TaskTarget";
 import DialogAdd from "./components/DialogAdd";
 import DropArea from "./components/DropArea";
 import ContextMenu from "./components/ContextMenu";
-import { Fragment, useState, useRef, useEffect, useCallback } from "react";
 import CalendarHeatmap from "react-calendar-heatmap";
 import "react-calendar-heatmap/dist/styles.css";
-import { useLocalStorage } from "./components/useLocalStorage";
-import {Button, ProgressBar, Card} from 'pixel-retroui';
+import {useLocalStorage} from "./components/useLocalStorage";
+import DialogShop from "./components/DialogShop";
+import DialogCustomize from "./components/DialogCustomize";
 
 const ButtonAdd = ({ content, activateModal }) => {
   return (
@@ -58,9 +61,9 @@ export function App() {
     [
       new Cards(
         0,
-        "Estudiar robótica",
-        "Para el proyecto final",
-        new Date(2025, 0, 22).toDateString(),
+        "Crear la primer tarea",
+        "Haz click encima para modificar o eliminar",
+        new Date(2025, 2, 10).toDateString(),
         "Media",
         ["estudio"],
         ["Intelligence"],
@@ -71,12 +74,12 @@ export function App() {
       ),
       new Cards(
         1,
-        "Prepararme para entrevista",
-        "Por fin se va a conseguir trabajo",
+        "Lavar la casa",
+        "Barrer, lavar y secar",
         new Date().toDateString(),
         "Alta",
         ["personal"],
-        ["Intelligence", "Social"],
+        ["Welfare"],
         false,
         "task",
         1,
@@ -135,6 +138,59 @@ export function App() {
     Welfare: { level: 1, progress: 0 },
   });
 
+  const [itemsShop,setItemsShop] = useLocalStorage("shop",[
+    {
+    name: "Espada de caballero",
+    src: "KnightSword.png",
+    price: 1000,
+    bought: false,
+    type: "item",
+    active: false,
+  },{name: "Sombrero de mago",
+    src: "WizardHat.png",
+    price: 1300,
+    bought: false,
+    type: "head",
+    active: false,
+  },{name: "Varita de mago",
+    src: "MageWand.png",
+    price: 1000,
+    bought: false,
+    type: "item",
+    active: false,
+  },{name: "Bastón de curandero",
+    src: "HealerStaff.png",
+    price: 1000,
+    bought: false,
+    type: "item",
+    active: false,
+  },{name: "Globo fiestero",
+    src: "PartyGlobe.png",
+    price: 1100,
+    bought: false,
+    type: "head",
+    active: false,
+  },{name: "Aureola",
+    src: "Aura.png",
+    price: 1200,
+    bought: false,
+    type: "head",
+    active: false,
+  },{name: "Lentes",
+    src: "Glasses.png",
+    price: 800,
+    bought: false,
+    type: "face",
+    active: false,
+  },{name: "Sombrero de copa",
+    src: "TopHat.png",
+    price: 1500,
+    bought: false,
+    type: "head",
+    active: false,
+  }
+]);
+
   const sameDate = (date1, date2) => {
     if (date1 && date2) {
       return (
@@ -184,6 +240,8 @@ export function App() {
   const dialogModal = useRef();
   const contextMenuRef = useRef();
   const [dialogOpen, setDialog] = useState(false);
+  const [isShopOpen, setIsShopOpen] = useState(false);
+  const [isCustomizationOpen, setIsCustomizationOpen] = useState(false);
   const [startDate, setStartDate] = useState(new Date());
   const [isTask, setIsTask] = useState(false);
   const [isModified, setIsModified] = useState(false);
@@ -331,7 +389,6 @@ export function App() {
   };
 
   const closeModal = (event) => {
-    console.log(event.target)
     if (typeof event !== "undefined") {
       if (event.type === "submit") {
         event.preventDefault();
@@ -616,6 +673,36 @@ export function App() {
     [activeCard, contextMenu, habits, tasks]
   );
 
+  const openShop = () =>{
+    console.log("Abriendo Tienda")
+    setIsShopOpen(true)
+  }
+
+  const purchaseItem = (item) => {
+    console.log("Comprado exitosamente");
+    const idItem = itemsShop.indexOf(item);
+    setItemsShop(itemsShop.map((item,index) => index === idItem ? {...item,bought: true,price: "Comprado"} : item));
+    setSlime({...slime,gel:slime.gel-item.price})
+  }
+
+  const openCustomize = () =>{
+    console.log("Abriendo Personalización")
+    setIsCustomizationOpen(true)
+  }
+
+  const equipItem = (item) => {
+    const indexItem = itemsShop.indexOf(item);
+    if(item.active){
+      setItemsShop(itemsShop.map((item,index) => index === indexItem ? {...item,active: !item.active} : item));
+    }else{
+      if(itemsShop.some((e,index)=> index !== indexItem && e.type === item.type && e.active)){
+        alert("Ya tienes un item de este tipo equipado")
+      }else{
+        setItemsShop(itemsShop.map((item,index) => index === indexItem ? {...item,active: !item.active} : item));
+      }
+    }
+  }
+
   return (
     <>
       <DialogAdd
@@ -637,17 +724,30 @@ export function App() {
         ContextMenuY={contextMenu.y}
         closeContextMenu={closeContextMenu}
       />
+      <DialogShop
+      closeModal={()=>setIsShopOpen(false)}
+      dialogOpen={isShopOpen}
+      itemsShop={itemsShop}
+      purchaseItem={purchaseItem}
+      gel={slime.gel}
+       />
+      <DialogCustomize
+      closeModal={()=>setIsCustomizationOpen(false)}
+      dialogOpen={isCustomizationOpen}
+      itemsShop={itemsShop}
+      equipItem={equipItem}
+       />
       <header id={styles.App_header}>
-        <h1>¡Tu siguiente aventura!</h1>
+        <h1>¡Tu Siguiente Aventura!</h1>
         <div>
           <img src="./src/assets/habilo.png" alt="Slime" />
         </div>
-        {/*<div>
+        <div onClick={()=>openShop()}>
                     <img src="./src/assets/store.svg" alt="Store"/>
                 </div>
                 <div>
                 <img src="./src/assets/user.svg" alt="User"/>
-                </div>*/}
+                </div>
       </header>
 
       <div style={{ background: "white" }}>
@@ -683,8 +783,9 @@ export function App() {
           </article>
 
           <article id={styles.slime} className={styles.App_info}>
-            <div id={styles.slime_img}>
-              <img src="./src/assets/habilo.png" alt="Slime"></img>
+            <div id={styles.slime_img} onClick={openCustomize}>
+              <img src="./src/assets/habilo.png" alt="Slime" draggable="false"></img>
+              {itemsShop.map((item) => item.active && <img key={item.name} src={"../src/assets/Item" + item.src} alt={item.name} draggable="false" className={`${styles.imgItem} ${item.type === "head" && styles.imgHead}`}/>)}
             </div>
             <input
               type="text"

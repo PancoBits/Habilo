@@ -78,8 +78,9 @@ const DialogAdd = forwardRef (function DialogAdd({closeModal,dialogOpen,startDat
     textColor="black"
     borderColor="#ffa900" className={styles.textAreas} id="description" defaultValue={actualCard.description}></TextArea>
                     {isTask && <h2>Finaliza</h2>}
-                    {isTask && <DatePicker
+                    {isTask && <div><DatePicker
                         id="date"
+                        className={styles.datePicker}
                         showIcon
                         toggleCalendarOnIconClick
                         isClearable
@@ -87,8 +88,9 @@ const DialogAdd = forwardRef (function DialogAdd({closeModal,dialogOpen,startDat
                         selected={startDate}
                         onChange={(date) => setStartDate(date)}
                         locale="es"
+                        showMonthDropdown
                         dateFormat="dd/MM/yyyy"
-                        placeholderText="Sin fecha de finalización"/>}
+                        placeholderText="Sin fecha de finalización"/></div>}
                     <h2>Prioridad</h2>
 
                     <select name="priority" defaultValue={actualCard.priority} id={styles.selector}>
@@ -107,7 +109,7 @@ const DialogAdd = forwardRef (function DialogAdd({closeModal,dialogOpen,startDat
                     <div className={styles.selectorStats}>
                         {stats.map(stat => <label className={styles.checkImg} key={stat.id}  > <input type="checkbox" id={stat.id} name="stat" ref={(element)=>(checkboxesRef.current[stat.id] = element)}  value={stat.name} checked={checkboxes[stat.id].check} onChange={isFilled}/> <h3>{stat.name}</h3> <img src={stat.src}/> </label>) }
                     </div>
-                    <Button bg="#ff2900" textColor="white" type="button" onClick={(e) => confirm("Estás seguro de cerrar? se perderá cualquier progreso") && sendForm(e)}>Cancelar</Button>
+                    <Button bg="#ff2900" textColor="white" type="button" onClick={() => confirm("Estás seguro de cerrar? se perderá cualquier progreso") && sendForm()}>Cancelar</Button>
                     <Button className={styles.buttonSave}  bg="#00ff29" textColor="white"  type="submit">Guardar</Button>
                     {isModified && <Button type="button" bg="#00d5ff" textColor="white" onClick={event => confirmation() && sendForm(event)}>Eliminar</Button>}
                 </form>

@@ -1,0 +1,34 @@
+.shopContainer{
+    max-height: 60vh;
+    display: flex;
+    flex-wrap: wrap;
+    max-width: 50vw;
+    overflow: auto;
+    -ms-overflow-style: none; 
+    scrollbar-width: none;
+    margin: 0 auto;
+}
+
+.shopContainer::-webkit-scrollbar {
+    display: none;
+  }
+
+.shopItem{
+    cursor: pointer;
+    flex: 1 1 auto;
+    width:clamp(100px,10vw,200px);
+    text-align: center;
+}
+
+.shopItem h3,p{
+    font-size:clamp(0.9em, 1vw, 1em);
+}
+
+.shopItem span{
+    font-weight: bold;
+}
+
+.itemDisabled{
+    opacity: 0.6;
+    cursor: not-allowed;
+}
