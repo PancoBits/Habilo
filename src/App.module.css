@@ -4,8 +4,9 @@
   justify-content: space-evenly;
   align-items: center;
   overflow: auto;
-  height: clamp(60px, 8vh, 10vh);
   margin: 0 auto;
+  gap: 10px;
+  padding: 10px;
 }
 
 img {
@@ -57,13 +58,9 @@ img {
 
 #name {
   font-size: clamp(1.3em, 3vw, 2em);
-  font-family: inherit;
-  border: none;
   text-align: center;
-  color: black;
   font-weight: bold;
   cursor: pointer;
-  background-color: transparent;
 }
 
 #gel {
@@ -86,7 +83,6 @@ img {
   position: relative;
   width: clamp(225px, 20vw, 270px);
   padding: 20px 0px;
-  cursor: pointer;
 }
 
 .imgItem{

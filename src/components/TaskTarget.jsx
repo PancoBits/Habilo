@@ -1,8 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from "./TaskTarget.module.css";
 
 const Task = ({ card, modify, checkCard, setActiveCard, openContextMenu }) => {
   const [isChecked, setIsChecked] = useState(card.isFinished);
+
+  useEffect(()=>{
+    setIsChecked(card.isFinished)
+  },[card])
 
   const cardPriority = () => {
     switch (card.priority) {

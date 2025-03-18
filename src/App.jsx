@@ -12,6 +12,8 @@ import "react-calendar-heatmap/dist/styles.css";
 import {useLocalStorage} from "./components/useLocalStorage";
 import DialogShop from "./components/DialogShop";
 import DialogCustomize from "./components/DialogCustomize";
+import DialogUser from "./components/DialogUser";
+import DialogChangeName from "./components/DialogChangeName";
 
 const ButtonAdd = ({ content, activateModal }) => {
   return (
@@ -206,7 +208,7 @@ export function App() {
   const updateDates = useCallback(() => {
     let aux = [];
     record.forEach((e) => {
-      if (e && e[0]) {
+      if (e?.[0]) {
         let auxObjet = { date: e[0].date, count: e.length };
         aux.push(auxObjet);
       }
@@ -215,18 +217,26 @@ export function App() {
   }, [record]);
 
   const calculateStreak = useCallback(() => {
+    const normalizeDate = (date) => {
+      const normalized = new Date(date);
+      normalized.setHours(0, 0, 0, 0);
+      return normalized;
+    };
+  
     const fechas = record
       .filter((e) => e.length !== 0)
       .map((fecha) => {
-        if (fecha[0]) return new Date(fecha[0].date);
+        if (fecha[0]) return normalizeDate(new Date(fecha[0].date));
       })
       .sort((a, b) => a - b);
+  
     let fechaActual = fechas[fechas.length - 1];
-    let contador = sameDate(fechaActual, new Date()) ? 1 : 0;
+    let contador = sameDate(fechaActual, normalizeDate(new Date())) || sameDate(fechaActual, normalizeDate(new Date(Date.now() - 86400000))) ? 1 : 0;
+  
     for (let i = fechas.length - 2; i >= 0; i--) {
       const fechaAnterior = fechas[i];
       const diferencia = (fechaActual - fechaAnterior) / (1000 * 3600 * 24);
-
+  
       if (diferencia === 1) {
         contador++;
         fechaActual = fechaAnterior;
@@ -242,6 +252,8 @@ export function App() {
   const [dialogOpen, setDialog] = useState(false);
   const [isShopOpen, setIsShopOpen] = useState(false);
   const [isCustomizationOpen, setIsCustomizationOpen] = useState(false);
+  const [isUserOpen, setIsUserOpen] = useState(false);
+  const [isChangeNameOpen, setIsChangeNameOpen] = useState(false);
   const [startDate, setStartDate] = useState(new Date());
   const [isTask, setIsTask] = useState(false);
   const [isModified, setIsModified] = useState(false);
@@ -340,11 +352,6 @@ export function App() {
       createProgressBar(e.name, slime[e.name].level, slime[e.name].progress)
     );
   }, [slime]);
-
-  const changeName = (event) => {
-    console.log("a", event.target);
-    //setSlime({...slime,name:event.target.value})
-  };
 
   const addNewCardInRecord = (type, id) => {
     let auxObj = {
@@ -673,21 +680,10 @@ export function App() {
     [activeCard, contextMenu, habits, tasks]
   );
 
-  const openShop = () =>{
-    console.log("Abriendo Tienda")
-    setIsShopOpen(true)
-  }
-
   const purchaseItem = (item) => {
-    console.log("Comprado exitosamente");
     const idItem = itemsShop.indexOf(item);
     setItemsShop(itemsShop.map((item,index) => index === idItem ? {...item,bought: true,price: "Comprado"} : item));
     setSlime({...slime,gel:slime.gel-item.price})
-  }
-
-  const openCustomize = () =>{
-    console.log("Abriendo Personalización")
-    setIsCustomizationOpen(true)
   }
 
   const equipItem = (item) => {
@@ -702,6 +698,33 @@ export function App() {
       }
     }
   }
+
+  const saveData = async () => {
+    const data = JSON.stringify({slime,tasks,habits,record,itemsShop});
+      try {
+        await navigator.clipboard.writeText(data);
+        alert('Contenido copiado al portapapeles');
+      } catch (err) {
+        alert('Error al copiar, copia manualmente el contenido de abajo: ', err);
+        return data;
+      }
+  }
+
+const loadData =  (data) => {
+  const allData = JSON.parse(data);
+  console.log(allData)
+   setSlime(allData.slime)
+   setTasks(allData.tasks)
+   setHabits(allData.habits)
+   setRecord(allData.record)
+   setItemsShop(allData.itemsShop)
+}
+
+const changeName = (input) => {
+  setSlime({...slime,name:input})
+  setIsChangeNameOpen(false);
+  alert("El nombre se ha cambiado exitosamente")
+}
 
   return (
     <>
@@ -737,17 +760,29 @@ export function App() {
       itemsShop={itemsShop}
       equipItem={equipItem}
        />
+      <DialogUser
+      closeModal={()=>setIsUserOpen(false)}
+      dialogOpen={isUserOpen}
+      saveData={saveData}
+      loadData={loadData}
+       />
+      <DialogChangeName
+      closeModal={()=>setIsChangeNameOpen(false)}
+      dialogOpen={isChangeNameOpen}
+      slime={slime}
+      changeName={changeName}
+       />
       <header id={styles.App_header}>
         <h1>¡Tu Siguiente Aventura!</h1>
-        <div>
-          <img src="./src/assets/habilo.png" alt="Slime" />
+        <div  style={{cursor: "pointer"}} title="Personalizar" onClick={()=>setIsCustomizationOpen(true)}>
+          <img src="./src/assets/customization.png" alt="Slime" />
         </div>
-        <div onClick={()=>openShop()}>
-                    <img src="./src/assets/store.svg" alt="Store"/>
-                </div>
-                <div>
-                <img src="./src/assets/user.svg" alt="User"/>
-                </div>
+        <div style={{cursor: "pointer"}} onClick={()=>setIsShopOpen(true)} title="Tienda">
+            <img src="./src/assets/store.png" alt="Store"/>
+        </div>
+        <div  style={{cursor: "pointer"}} title="Perfil" onClick={()=>setIsUserOpen(true)}>
+        <img src="./src/assets/user.png" alt="User"/>
+        </div>
       </header>
 
       <div style={{ background: "white" }}>
@@ -783,18 +818,14 @@ export function App() {
           </article>
 
           <article id={styles.slime} className={styles.App_info}>
-            <div id={styles.slime_img} onClick={openCustomize}>
+            <div id={styles.slime_img}>
               <img src="./src/assets/habilo.png" alt="Slime" draggable="false"></img>
               {itemsShop.map((item) => item.active && <img key={item.name} src={"../src/assets/Item" + item.src} alt={item.name} draggable="false" className={`${styles.imgItem} ${item.type === "head" && styles.imgHead}`}/>)}
             </div>
-            <input
-              type="text"
-              id={styles.name}
-              onClick={changeName}
-              autoComplete="off"
-              readOnly
-              value={slime.name}
-            />
+            <h2 id={styles.name}
+              onClick={()=>setIsChangeNameOpen(true)}>
+                {slime.name}
+            </h2>
           </article>
 
           <article id={styles.App_stats} className={styles.App_info}>
@@ -890,7 +921,7 @@ export function App() {
                 return `color-scale-${value.count}`;
               }}
               titleForValue={(value) =>
-                value && `Fecha: ${value.date} - Terminadas: ${value.count}`
+                (value !== null) && `Fecha: ${new Date(value.date).toDateString()} - Terminadas: ${value.count}`
               }
               values={datesCalendar}
             />
