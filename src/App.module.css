@@ -4,7 +4,6 @@
   justify-content: space-evenly;
   align-items: center;
   overflow: auto;
-  margin: 0 auto;
   gap: 10px;
   padding: 10px;
 }
@@ -30,7 +29,6 @@ img {
   flex-wrap: wrap;
   justify-content: space-evenly;
   align-items: center;
-  margin: 0 auto;
   gap: 5vw;
   padding: 0 5vw 2vh 5vw;
 }
@@ -87,10 +85,12 @@ img {
 
 .imgItem{
   position: absolute;
+  z-index: 1;
   top:32.5px;
 }
 
 .imgHead{
+  z-index: 0;
   top: 20px;
 }
 
@@ -123,12 +123,17 @@ img {
   height: 100%;
 }
 
+.filterInput{
+  left: 50%;
+  transform: translate(-50%,30%);
+}
+
 #App_tracker {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-evenly;
   overflow: auto;
-  margin: 0 auto;
+  margin: 10px 0 0 0;
   gap: 2vw;
   padding: 0 5vw 25px 5vw;
 }

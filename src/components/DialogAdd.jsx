@@ -1,12 +1,12 @@
 import styles from "./DialogAdd.module.css";
-import { useState,useRef, forwardRef, useEffect } from "react";
+import { useState,useRef, useEffect } from "react";
 import {Popup, TextArea, Input,Button} from 'pixel-retroui'
 import DatePicker, {registerLocale} from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import {es}from 'date-fns/locale';
 registerLocale("es",es)
 
-const DialogAdd = forwardRef (function DialogAdd({closeModal,dialogOpen,startDate,setStartDate,isTask,isModified,actualCard,stats},ref) {
+const DialogAdd = ({closeModal,dialogOpen,startDate,setStartDate,isTask,isModified,actualCard,stats}) => {
     const [sendButton, setSendButton] = useState([false,false]);
     const [checkboxes,setCheckboxes] = useState(stats)
     const [buttonDisabled, setButtonDisabled] = useState(true)
@@ -61,7 +61,7 @@ const DialogAdd = forwardRef (function DialogAdd({closeModal,dialogOpen,startDat
     }
 
     return( 
-            <Popup ref={ref}
+            <Popup
             className="text-center"
             isOpen={dialogOpen}
             onClose={(e) => confirm("Estás seguro de cerrar? se perderá cualquier progreso") && sendForm(e)}
@@ -115,6 +115,6 @@ const DialogAdd = forwardRef (function DialogAdd({closeModal,dialogOpen,startDat
                 </form>
             </Popup>
     )
-})
+};
 
 export default DialogAdd

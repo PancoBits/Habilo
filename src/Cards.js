@@ -35,9 +35,6 @@ export class Cards {
   set setcolor(color) {
     this.color = color;
   }
-  get getid() {
-    return this.id;
-  }
 
   cloneWithChanges(changes) {
     return Object.assign(new Cards(), this, changes);

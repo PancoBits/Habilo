@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { Fragment, useState, useRef, useEffect, useCallback } from "react";
 import styles from "./App.module.css";
-import {Button, ProgressBar, Card} from 'pixel-retroui';
+import { Button, ProgressBar, Card, Input } from "pixel-retroui";
 import { Cards } from "./Cards";
 import Task from "./components/TaskTarget";
 import DialogAdd from "./components/DialogAdd";
@@ -9,7 +9,7 @@ import DropArea from "./components/DropArea";
 import ContextMenu from "./components/ContextMenu";
 import CalendarHeatmap from "react-calendar-heatmap";
 import "react-calendar-heatmap/dist/styles.css";
-import {useLocalStorage} from "./components/useLocalStorage";
+import { useLocalStorage } from "./components/useLocalStorage";
 import DialogShop from "./components/DialogShop";
 import DialogCustomize from "./components/DialogCustomize";
 import DialogUser from "./components/DialogUser";
@@ -17,7 +17,11 @@ import DialogChangeName from "./components/DialogChangeName";
 
 const ButtonAdd = ({ content, activateModal }) => {
   return (
-    <Button bg="#ff0000" textColor="#ffffff" onClick={() => activateModal(content)}>
+    <Button
+      bg="#ff0000"
+      textColor="#ffffff"
+      onClick={() => activateModal(content)}
+    >
       {content}
     </Button>
   );
@@ -31,27 +35,41 @@ const ShowCards = ({
   setActiveCard,
   onDrop,
   openContextMenu,
+  filterInput,
 }) => {
   const display = () => {
+    let tags;
+    filterInput &&
+      (tags = filterInput
+        .split(",")
+        .map((e) => e.trim())
+        .filter((e) => e !== ""));
     return (
       data &&
-      data.map((card) => (
-        <Fragment key={card.id}>
-          <Task
-            card={card}
-            modify={modify}
-            checkCard={checkCard}
-            setActiveCard={setActiveCard}
-            openContextMenu={openContextMenu}
-          />
-          <DropArea
-            position={card.position + 1}
-            type={card.type}
-            activeCard={activeCard}
-            onDrop={() => onDrop(card.position + 1, card.type)}
-          ></DropArea>
-        </Fragment>
-      ))
+      data.map(
+        (card) =>
+          (tags
+            ? card.tags.some((cardT) =>
+                tags.some((tag) => cardT.startsWith(tag))
+              )
+            : true) && (
+            <Fragment key={card.id}>
+              <Task
+                card={card}
+                modify={modify}
+                checkCard={checkCard}
+                setActiveCard={setActiveCard}
+                openContextMenu={openContextMenu}
+              />
+              <DropArea
+                position={card.position + 1}
+                type={card.type}
+                activeCard={activeCard}
+                onDrop={() => onDrop(card.position + 1, card.type)}
+              ></DropArea>
+            </Fragment>
+          )
+      )
     );
   };
   return <>{display()}</>;
@@ -140,58 +158,7 @@ export function App() {
     Welfare: { level: 1, progress: 0 },
   });
 
-  const [itemsShop,setItemsShop] = useLocalStorage("shop",[
-    {
-    name: "Espada de caballero",
-    src: "KnightSword.png",
-    price: 1000,
-    bought: false,
-    type: "item",
-    active: false,
-  },{name: "Sombrero de mago",
-    src: "WizardHat.png",
-    price: 1300,
-    bought: false,
-    type: "head",
-    active: false,
-  },{name: "Varita de mago",
-    src: "MageWand.png",
-    price: 1000,
-    bought: false,
-    type: "item",
-    active: false,
-  },{name: "Bastón de curandero",
-    src: "HealerStaff.png",
-    price: 1000,
-    bought: false,
-    type: "item",
-    active: false,
-  },{name: "Globo fiestero",
-    src: "PartyGlobe.png",
-    price: 1100,
-    bought: false,
-    type: "head",
-    active: false,
-  },{name: "Aureola",
-    src: "Aura.png",
-    price: 1200,
-    bought: false,
-    type: "head",
-    active: false,
-  },{name: "Lentes",
-    src: "Glasses.png",
-    price: 800,
-    bought: false,
-    type: "face",
-    active: false,
-  },{name: "Sombrero de copa",
-    src: "TopHat.png",
-    price: 1500,
-    bought: false,
-    type: "head",
-    active: false,
-  }
-]);
+  const [itemsUser, setItemsUser] = useLocalStorage("itemsUser", []);
 
   const sameDate = (date1, date2) => {
     if (date1 && date2) {
@@ -222,21 +189,25 @@ export function App() {
       normalized.setHours(0, 0, 0, 0);
       return normalized;
     };
-  
+
     const fechas = record
       .filter((e) => e.length !== 0)
       .map((fecha) => {
         if (fecha[0]) return normalizeDate(new Date(fecha[0].date));
       })
       .sort((a, b) => a - b);
-  
+
     let fechaActual = fechas[fechas.length - 1];
-    let contador = sameDate(fechaActual, normalizeDate(new Date())) || sameDate(fechaActual, normalizeDate(new Date(Date.now() - 86400000))) ? 1 : 0;
-  
+    let contador =
+      sameDate(fechaActual, normalizeDate(new Date())) ||
+      sameDate(fechaActual, normalizeDate(new Date(Date.now() - 86400000)))
+        ? 1
+        : 0;
+
     for (let i = fechas.length - 2; i >= 0; i--) {
       const fechaAnterior = fechas[i];
       const diferencia = (fechaActual - fechaAnterior) / (1000 * 3600 * 24);
-  
+
       if (diferencia === 1) {
         contador++;
         fechaActual = fechaAnterior;
@@ -247,7 +218,6 @@ export function App() {
     return contador;
   }, [record]);
 
-  const dialogModal = useRef();
   const contextMenuRef = useRef();
   const [dialogOpen, setDialog] = useState(false);
   const [isShopOpen, setIsShopOpen] = useState(false);
@@ -261,6 +231,7 @@ export function App() {
   const [activeCard, setActiveCard] = useState(null);
   const [datesCalendar, setDatesCalendar] = useState(updateDates());
   const [allStreak, setAllStreak] = useState(calculateStreak());
+  const [filterInput, setFilterInput] = useState("");
   const [contextMenu, setContextMenu] = useState({
     open: false,
     x: 0,
@@ -304,6 +275,65 @@ export function App() {
     { id: 7, color: "#7fffd4" },
   ];
 
+  const [itemsShop, setItemsShop] = useState([
+    {
+      id: 0,
+      name: "Espada de caballero",
+      src: "KnightSword.png",
+      price: 1000,
+      type: "item",
+    },
+    {
+      id: 1,
+      name: "Sombrero de mago",
+      src: "WizardHat.png",
+      price: 1300,
+      type: "head",
+    },
+    {
+      id: 2,
+      name: "Varita de mago",
+      src: "MageWand.png",
+      price: 1000,
+      type: "item",
+    },
+    {
+      id: 3,
+      name: "Bastón de curandero",
+      src: "HealerStaff.png",
+      price: 1000,
+      type: "item",
+    },
+    {
+      id: 4,
+      name: "Globo fiestero",
+      src: "PartyGlobe.png",
+      price: 1100,
+      type: "head",
+    },
+    {
+      id: 5,
+      name: "Aureola",
+      src: "Aura.png",
+      price: 1200,
+      type: "head",
+    },
+    {
+      id: 6,
+      name: "Lentes",
+      src: "Glasses.png",
+      price: 800,
+      type: "face",
+    },
+    {
+      id: 7,
+      name: "Sombrero de copa",
+      src: "TopHat.png",
+      price: 1500,
+      type: "head",
+    },
+  ]);
+
   const taskMessage = "Nuevo por hacer";
   const habitMessage = "Nuevo hábito";
 
@@ -314,6 +344,26 @@ export function App() {
   useEffect(() => {
     setAllStreak(calculateStreak());
   }, [record, calculateStreak]);
+
+  useEffect(() => {
+    let deletedItemPrice = 0;
+    setItemsUser(itemsUser.filter((itemU)=>{
+      if(itemsShop.some((itemS)=>itemS.id===itemU.id)){
+        return true;
+      } else {
+        deletedItemPrice += itemU.price;
+        return false;
+      }
+    }));
+    setSlime({...slime, gel: slime.gel+deletedItemPrice})
+    setItemsShop(
+      itemsShop.map((itemS) =>
+        itemsUser.some((itemU) => itemU.id === itemS.id)
+          ? { ...itemS, bought: true, price: "Comprado" }
+          : itemS
+      )
+    );
+  }, []);
 
   useEffect(() => {
     document.addEventListener("click", closeContextMenu);
@@ -331,7 +381,7 @@ export function App() {
   }, [contextMenu]);
 
   useEffect(() => {
-     function createProgressBar(name, divisions, progress) {
+    function createProgressBar(name, divisions, progress) {
       const progressBar = document.getElementById(`${styles[name]}`);
       progressBar.innerHTML = "";
       for (let i = 0; i < divisions; i++) {
@@ -681,55 +731,68 @@ export function App() {
   );
 
   const purchaseItem = (item) => {
-    const idItem = itemsShop.indexOf(item);
-    setItemsShop(itemsShop.map((item,index) => index === idItem ? {...item,bought: true,price: "Comprado"} : item));
-    setSlime({...slime,gel:slime.gel-item.price})
-  }
+    setItemsUser(itemsUser.concat({ ...item, active: false }));
+    setItemsShop(
+      itemsShop.map((e) =>
+        e.id === item.id ? { ...e, bought: true, price: "Comprado" } : e
+      )
+    );
+    setSlime({ ...slime, gel: slime.gel - item.price });
+  };
 
   const equipItem = (item) => {
-    const indexItem = itemsShop.indexOf(item);
-    if(item.active){
-      setItemsShop(itemsShop.map((item,index) => index === indexItem ? {...item,active: !item.active} : item));
-    }else{
-      if(itemsShop.some((e,index)=> index !== indexItem && e.type === item.type && e.active)){
-        alert("Ya tienes un item de este tipo equipado")
-      }else{
-        setItemsShop(itemsShop.map((item,index) => index === indexItem ? {...item,active: !item.active} : item));
+    if (item.active) {
+      setItemsUser(
+        itemsUser.map((e) =>
+          item.id === e.id ? { ...e, active: !e.active } : e
+        )
+      );
+    } else {
+      if (
+        itemsUser.some(
+          (e) => e.id !== item.id && e.type === item.type && e.active
+        )
+      ) {
+        alert("Ya tienes un item de este tipo equipado");
+      } else {
+        setItemsUser(
+          itemsUser.map((e) =>
+            e.id === item.id ? { ...e, active: !e.active } : e
+          )
+        );
       }
     }
-  }
+  };
 
   const saveData = async () => {
-    const data = JSON.stringify({slime,tasks,habits,record,itemsShop});
-      try {
-        await navigator.clipboard.writeText(data);
-        alert('Contenido copiado al portapapeles');
-      } catch (err) {
-        alert('Error al copiar, copia manualmente el contenido de abajo: ', err);
-        return data;
-      }
-  }
+    const data = JSON.stringify({ slime, tasks, habits, record, itemsUser });
+    try {
+      await navigator.clipboard.writeText(data);
+      alert("Contenido copiado al portapapeles");
+    } catch (err) {
+      alert("Error al copiar, copia manualmente el contenido de abajo: ", err);
+      return data;
+    }
+  };
 
-const loadData =  (data) => {
-  const allData = JSON.parse(data);
-  console.log(allData)
-   setSlime(allData.slime)
-   setTasks(allData.tasks)
-   setHabits(allData.habits)
-   setRecord(allData.record)
-   setItemsShop(allData.itemsShop)
-}
+  const loadData = (data) => {
+    const allData = JSON.parse(data);
+    setSlime(allData.slime);
+    setTasks(allData.tasks);
+    setHabits(allData.habits);
+    setRecord(allData.record);
+    setItemsUser(allData.itemsUser);
+  };
 
-const changeName = (input) => {
-  setSlime({...slime,name:input})
-  setIsChangeNameOpen(false);
-  alert("El nombre se ha cambiado exitosamente")
-}
+  const changeName = (input) => {
+    setSlime({ ...slime, name: input });
+    setIsChangeNameOpen(false);
+    alert("El nombre se ha cambiado exitosamente");
+  };
 
   return (
     <>
       <DialogAdd
-        ref={dialogModal}
         dialogOpen={dialogOpen}
         closeModal={closeModal}
         startDate={startDate}
@@ -748,40 +811,52 @@ const changeName = (input) => {
         closeContextMenu={closeContextMenu}
       />
       <DialogShop
-      closeModal={()=>setIsShopOpen(false)}
-      dialogOpen={isShopOpen}
-      itemsShop={itemsShop}
-      purchaseItem={purchaseItem}
-      gel={slime.gel}
-       />
+        closeModal={() => setIsShopOpen(false)}
+        dialogOpen={isShopOpen}
+        itemsShop={itemsShop}
+        purchaseItem={purchaseItem}
+        gel={slime.gel}
+      />
       <DialogCustomize
-      closeModal={()=>setIsCustomizationOpen(false)}
-      dialogOpen={isCustomizationOpen}
-      itemsShop={itemsShop}
-      equipItem={equipItem}
-       />
+        closeModal={() => setIsCustomizationOpen(false)}
+        dialogOpen={isCustomizationOpen}
+        itemsUser={itemsUser}
+        equipItem={equipItem}
+      />
       <DialogUser
-      closeModal={()=>setIsUserOpen(false)}
-      dialogOpen={isUserOpen}
-      saveData={saveData}
-      loadData={loadData}
-       />
+        closeModal={() => setIsUserOpen(false)}
+        dialogOpen={isUserOpen}
+        saveData={saveData}
+        loadData={loadData}
+      />
       <DialogChangeName
-      closeModal={()=>setIsChangeNameOpen(false)}
-      dialogOpen={isChangeNameOpen}
-      slime={slime}
-      changeName={changeName}
-       />
+        closeModal={() => setIsChangeNameOpen(false)}
+        dialogOpen={isChangeNameOpen}
+        slime={slime}
+        changeName={changeName}
+      />
       <header id={styles.App_header}>
         <h1>¡Tu Siguiente Aventura!</h1>
-        <div  style={{cursor: "pointer"}} title="Personalizar" onClick={()=>setIsCustomizationOpen(true)}>
+        <div
+          style={{ cursor: "pointer" }}
+          title="Personalizar"
+          onClick={() => setIsCustomizationOpen(true)}
+        >
           <img src="./src/assets/customization.png" alt="Slime" />
         </div>
-        <div style={{cursor: "pointer"}} onClick={()=>setIsShopOpen(true)} title="Tienda">
-            <img src="./src/assets/store.png" alt="Store"/>
+        <div
+          style={{ cursor: "pointer" }}
+          onClick={() => setIsShopOpen(true)}
+          title="Tienda"
+        >
+          <img src="./src/assets/store.png" alt="Store" />
         </div>
-        <div  style={{cursor: "pointer"}} title="Perfil" onClick={()=>setIsUserOpen(true)}>
-        <img src="./src/assets/user.png" alt="User"/>
+        <div
+          style={{ cursor: "pointer" }}
+          title="Perfil"
+          onClick={() => setIsUserOpen(true)}
+        >
+          <img src="./src/assets/user.png" alt="User" />
         </div>
       </header>
 
@@ -812,19 +887,33 @@ const changeName = (input) => {
             />
 
             <h2>Gel:</h2>
-            <Card>
-                {slime.gel}
-            </Card>
+            <Card>{slime.gel}</Card>
           </article>
 
           <article id={styles.slime} className={styles.App_info}>
             <div id={styles.slime_img}>
-              <img src="./src/assets/habilo.png" alt="Slime" draggable="false"></img>
-              {itemsShop.map((item) => item.active && <img key={item.name} src={"../src/assets/Item" + item.src} alt={item.name} draggable="false" className={`${styles.imgItem} ${item.type === "head" && styles.imgHead}`}/>)}
+              <img
+                src="./src/assets/habilo.png"
+                alt="Slime"
+                draggable="false"
+              ></img>
+              {itemsUser.map(
+                (item) =>
+                  item.active && (
+                    <img
+                      key={item.name}
+                      src={"../src/assets/Item" + item.src}
+                      alt={item.name}
+                      draggable="false"
+                      className={`${styles.imgItem} ${
+                        item.type === "head" && styles.imgHead
+                      }`}
+                    />
+                  )
+              )}
             </div>
-            <h2 id={styles.name}
-              onClick={()=>setIsChangeNameOpen(true)}>
-                {slime.name}
+            <h2 id={styles.name} onClick={() => setIsChangeNameOpen(true)}>
+              {slime.name}
             </h2>
           </article>
 
@@ -839,9 +928,9 @@ const changeName = (input) => {
                       : `${slime[e.name].level}`}
                   </h2>
                   <Card>
-                  <div className={styles.status_bar}>
-                    <div id={styles[e.name]}></div>
-                  </div>
+                    <div className={styles.status_bar}>
+                      <div id={styles[e.name]}></div>
+                    </div>
                   </Card>
                 </article>
               );
@@ -850,83 +939,105 @@ const changeName = (input) => {
         </section>
       </div>
 
+      <Input
+        onChange={(e) => setFilterInput(e.target.value)}
+        placeholder="Buscar por etiqueta"
+        className={styles.filterInput}
+      ></Input>
       <section id={styles.App_tracker}>
         <article className={styles.App_info}>
-        <h2>Por Hacer</h2>
+          <h2>Por Hacer</h2>
           <Card>
-          <section className={styles.at_box}>
-            <ButtonAdd content={taskMessage} activateModal={activateModal} />
+            <section className={styles.at_box}>
+              <ButtonAdd content={taskMessage} activateModal={activateModal} />
 
-            <DropArea
-              position={0}
-              type={"task"}
-              activeCard={activeCard}
-              onDrop={() => onDrop(0, "task")}
-            ></DropArea>
-            <ShowCards
-              data={tasks}
-              modify={modifyCard}
-              checkCard={checkCard}
-              activeCard={activeCard}
-              setActiveCard={setActiveCard}
-              onDrop={onDrop}
-              openContextMenu={openContextMenu}
-            />
-          </section>
+              <DropArea
+                position={0}
+                type={"task"}
+                activeCard={activeCard}
+                onDrop={() => onDrop(0, "task")}
+              ></DropArea>
+              <ShowCards
+                data={tasks}
+                modify={modifyCard}
+                checkCard={checkCard}
+                activeCard={activeCard}
+                setActiveCard={setActiveCard}
+                onDrop={onDrop}
+                openContextMenu={openContextMenu}
+                filterInput={filterInput}
+              />
+            </section>
           </Card>
         </article>
         <article className={styles.App_info}>
           <h2>Hábitos</h2>
           <Card>
-          <section className={styles.at_box}>
-            <ButtonAdd content={habitMessage} activateModal={activateModal} />
-            <DropArea
-              position={0}
-              type={"habit"}
-              activeCard={activeCard}
-              onDrop={() => onDrop(0, "habit")}
-            ></DropArea>
-            <ShowCards
-              data={habits}
-              modify={modifyCard}
-              checkCard={checkCard}
-              activeCard={activeCard}
-              setActiveCard={setActiveCard}
-              onDrop={onDrop}
-              openContextMenu={openContextMenu}
-            />
-          </section>
+            <section className={styles.at_box}>
+              <ButtonAdd content={habitMessage} activateModal={activateModal} />
+              <DropArea
+                position={0}
+                type={"habit"}
+                activeCard={activeCard}
+                onDrop={() => onDrop(0, "habit")}
+              ></DropArea>
+              <ShowCards
+                data={habits}
+                modify={modifyCard}
+                checkCard={checkCard}
+                activeCard={activeCard}
+                setActiveCard={setActiveCard}
+                onDrop={onDrop}
+                openContextMenu={openContextMenu}
+                filterInput={filterInput}
+              />
+            </section>
           </Card>
         </article>
         <article className={styles.App_info}>
           <h2>Calendario</h2>
           <Card>
-          <section className={styles.at_box} id={styles.calendar}>
-            <CalendarHeatmap
-              startDate={
-                new Date(new Date().getFullYear(), new Date().getMonth(), 0)
-              }
-              endDate={
-                new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)
-              }
-              showMonthLabels={false}
-              horizontal={false}
-              weekdayLabels={["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"]}
-              showWeekdayLabels={true}
-              classForValue={(value) => {
-                if (!value) {
-                  return "color-empty";
+            <section className={styles.at_box} id={styles.calendar}>
+              <CalendarHeatmap
+                startDate={
+                  new Date(new Date().getFullYear(), new Date().getMonth(), 0)
                 }
-                if (value.count > 5) return `color-scale-5`;
-                return `color-scale-${value.count}`;
-              }}
-              titleForValue={(value) =>
-                (value !== null) && `Fecha: ${new Date(value.date).toDateString()} - Terminadas: ${value.count}`
-              }
-              values={datesCalendar}
-            />
-            <h2>Racha de: {allStreak}</h2>
-          </section>
+                endDate={
+                  new Date(
+                    new Date().getFullYear(),
+                    new Date().getMonth() + 1,
+                    0
+                  )
+                }
+                showMonthLabels={false}
+                horizontal={false}
+                weekdayLabels={[
+                  "Lun",
+                  "Mar",
+                  "Mié",
+                  "Jue",
+                  "Vie",
+                  "Sáb",
+                  "Dom",
+                ]}
+                showWeekdayLabels={true}
+                classForValue={(value) => {
+                  if (!value) {
+                    return "color-empty";
+                  }
+                  if (value.count > 5) return `color-scale-5`;
+                  return `color-scale-${value.count}`;
+                }}
+                titleForValue={(value) =>
+                  value !== null &&
+                  `Fecha: ${new Date(
+                    value.date
+                  ).toDateString()} - Terminadas: ${value.count}`
+                }
+                values={datesCalendar}
+              />
+              <h2>Racha de: {allStreak}</h2>
+            </section>
           </Card>
         </article>
       </section>

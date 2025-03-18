@@ -21,7 +21,7 @@ const DialogShop = ({closeModal,dialogOpen,itemsShop,purchaseItem,gel}) => {
             {itemsShop.map((item) => {
                 return (
                     <Card
-                        key={item.name}
+                        key={item.id}
                         onClick={() => buyItem(item)}
                         bg={isNaN(item.price) && "rgb(190, 255, 160)"}
                         className={`${styles.shopItem} ${(item.price > gel || item.bought) && styles.itemDisabled}`}
