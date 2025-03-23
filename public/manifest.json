@@ -1,0 +1,39 @@
+{
+    "display": "standalone",
+    "display_override": ["window-controls-overlay"],
+    "lang": "es-Es",
+    "name": "Hábilo - Tu Compañero de Aventuras",
+    "short_name": "Hábilo",
+    "icons": [
+      {
+        "src": "/icons/pwa-192x192.png",
+        "sizes": "192x192",
+        "type": "image/png",
+        "purpose": "any"
+      },
+      {
+        "src": "/icons/pwa-512x512.png",
+        "sizes": "512x512",
+        "type": "image/png",
+        "purpose": "any"
+      },
+      {
+        "src": "/icons/pwa-maskable-192x192.png",
+        "sizes": "192x192",
+        "type": "image/png",
+        "purpose": "maskable"
+      },
+      {
+        "src": "/icons/pwa-maskable-512x512.png",
+        "sizes": "512x512",
+        "type": "image/png",
+        "purpose": "maskable"
+      }
+    ],
+    "background_color": "#C8FFF1",
+    "theme_color": "#008463",
+    "description": "Hábilo: tu compañero para lograr metas. Organiza tareas, crea hábitos y diviértete creciendo cada día. ¿Aceptas el reto? ¡Conviértete en tu mejor versión!",
+    "start_url": "/",
+    "scope": "/",
+    "orientation": "any"
+}

@@ -1,11 +1,15 @@
 import { useCallback, useState } from "react";
 import { Cards } from "../Cards";
 
-export const useLocalStorage = (key, initialValue, type) => {
+const useLocalStorage = (key, initialValue, type) => {
   const [storedValue, setStoredValue] = useState(() => {
     try {
-      const item = window.localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
+      if (typeof window !== "undefined") {
+        const item = window.localStorage.getItem(key);
+        return item ? JSON.parse(item) : initialValue;
+      } else {
+        return initialValue;
+      }
     } catch (error) {
       return initialValue;
     }
@@ -15,8 +19,10 @@ export const useLocalStorage = (key, initialValue, type) => {
     (value) => {
       try {
         setStoredValue(value);
-        const stringifiedValue = JSON.stringify(value);
-        window.localStorage.setItem(key, stringifiedValue);
+        if (typeof window !== "undefined") {
+          const stringifiedValue = JSON.stringify(value);
+          window.localStorage.setItem(key, stringifiedValue);
+        }
       } catch (error) {
         console.error(error);
       }
@@ -31,3 +37,5 @@ export const useLocalStorage = (key, initialValue, type) => {
     setValue,
   ];
 };
+
+export default useLocalStorage

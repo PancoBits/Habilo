@@ -20,7 +20,7 @@ const DialogCustomize = ({closeModal,dialogOpen,itemsUser,equipItem}) => {
                         onClick={()=>equipItem(item)}
                     >
                         <h3>{item.name}</h3>
-                        <img src={"../src/assets/"+item.src}/>
+                        <img src={"/img/assets/"+item.src}/>
                         <p>{item.active ? "Equipado" : "Equipar"}</p>
                     </Card>
                 );

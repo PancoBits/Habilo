@@ -27,7 +27,7 @@ const DialogShop = ({closeModal,dialogOpen,itemsShop,purchaseItem,gel}) => {
                         className={`${styles.shopItem} ${(item.price > gel || item.bought) && styles.itemDisabled}`}
                     >
                         <h3>{item.name}</h3>
-                        <img src={"../src/assets/"+item.src}/>
+                        <img src={"/img/assets/"+item.src}/>
                         <p>{item.price} {!isNaN(item.price) && <span>G</span>}</p>
                     </Card>);
             })}

@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { Fragment, useState, useRef, useEffect, useCallback } from "react";
 import styles from "./App.module.css";
 import { Button, ProgressBar, Card, Input } from "pixel-retroui";
@@ -9,7 +8,7 @@ import DropArea from "./components/DropArea";
 import ContextMenu from "./components/ContextMenu";
 import CalendarHeatmap from "react-calendar-heatmap";
 import "react-calendar-heatmap/dist/styles.css";
-import { useLocalStorage } from "./components/useLocalStorage";
+import useLocalStorage from "./hooks/UseLocalStorage";
 import DialogShop from "./components/DialogShop";
 import DialogCustomize from "./components/DialogCustomize";
 import DialogUser from "./components/DialogUser";
@@ -50,7 +49,7 @@ const ShowCards = ({
         (card) =>
           (tags
             ? card.tags.some((cardT) =>
-                tags.some((tag) => cardT.startsWith(tag))
+                tags.some((tag) => cardT.toLowerCase().startsWith(tag.toLowerCase()))
               )
             : true) && (
             <Fragment key={card.id}>
@@ -242,25 +241,25 @@ export function App() {
       id: "0",
       name: "Strength",
       check: false,
-      src: "../src/assets/knight.png",
+      src: "/img/assets/knight.png",
     },
     {
       id: "1",
       name: "Intelligence",
       check: false,
-      src: "../src/assets/mage.png",
+      src: "/img/assets/mage.png",
     },
     {
       id: "2",
       name: "Social",
       check: false,
-      src: "../src/assets/clown.png",
+      src: "/img/assets/clown.png",
     },
     {
       id: "3",
       name: "Welfare",
       check: false,
-      src: "../src/assets/healer.png",
+      src: "/img/assets/healer.png",
     },
   ];
 
@@ -842,21 +841,21 @@ export function App() {
           title="Personalizar"
           onClick={() => setIsCustomizationOpen(true)}
         >
-          <img src="./src/assets/customization.png" alt="Slime" />
+          <img src="/img/assets/customization.png" alt="Slime" />
         </div>
         <div
           style={{ cursor: "pointer" }}
           onClick={() => setIsShopOpen(true)}
           title="Tienda"
         >
-          <img src="./src/assets/store.png" alt="Store" />
+          <img src="/img/assets/store.png" alt="Store" />
         </div>
         <div
           style={{ cursor: "pointer" }}
           title="Perfil"
           onClick={() => setIsUserOpen(true)}
         >
-          <img src="./src/assets/user.png" alt="User" />
+          <img src="/img/assets/user.png" alt="User" />
         </div>
       </header>
 
@@ -893,7 +892,7 @@ export function App() {
           <article id={styles.slime} className={styles.App_info}>
             <div id={styles.slime_img}>
               <img
-                src="./src/assets/habilo.png"
+                src="/img/assets/habilo.png"
                 alt="Slime"
                 draggable="false"
               ></img>
@@ -902,7 +901,7 @@ export function App() {
                   item.active && (
                     <img
                       key={item.name}
-                      src={"../src/assets/Item" + item.src}
+                      src={"/img/assets/Item" + item.src}
                       alt={item.name}
                       draggable="false"
                       className={`${styles.imgItem} ${
